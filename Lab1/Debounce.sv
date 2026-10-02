@@ -9,7 +9,6 @@ module Debounce (
 
 parameter CNT_N = 1_000_000; // 7;
 localparam CNT_BIT = 20;
-
 localparam logic [CNT_BIT-1:0] CNT_LAST = (CNT_N == 7) ? 20'h0007F : 20'h875EA;
 
 logic o_debounced_r, o_debounced_w;
@@ -46,7 +45,6 @@ always_ff @(posedge i_clk or posedge i_rst) begin
 	end
 end
 
-// counter 不用 async reset：輸入與輸出相同時同步歸零（接 SR 腳，不佔 LUT）
 always_ff @(posedge i_clk) begin
 	if (i_in == o_debounced_r) counter_r <= '0;
 	else                       counter_r <= counter_w;
