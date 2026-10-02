@@ -68,11 +68,11 @@ if __name__ == '__main__':
         r_chunk_size = 32
         w_chunk_size = 31
     while True:
-        chunk = stdin.read(r_chunk_size)
+        chunk = stdin.buffer.read(r_chunk_size)
         n_read = len(chunk)
         if n_read < r_chunk_size:
             if n_read != 0:
-                print "There are {} trailing bytes left (ignored).".format(n_read)
+                print("There are {} trailing bytes left (ignored).".format(n_read))
             break
         else:
             vals = unpack("{}B".format(r_chunk_size), chunk)
@@ -84,4 +84,4 @@ if __name__ == '__main__':
             msg_new = power_mont(msg, exponentiation, val_n)
             vals_new = map(lambda shamt: (msg_new>>shamt)&255, range((w_chunk_size-1)*8, -8, -8))
             vals_new = pack("{}B".format(w_chunk_size), *vals_new)
-            stdout.write(vals_new)
+            stdout.buffer.write(vals_new)
