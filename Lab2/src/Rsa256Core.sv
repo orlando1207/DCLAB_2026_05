@@ -14,6 +14,64 @@ module Rsa256Core (
 
 endmodule
 
+// y*2^256 mod n
+module RsaPrep (
+	input          i_clk,
+	input          i_rst,
+	input          i_start,
+	input  [255:0] i_n,
+	// input  [255:0] i_a,
+	input  [255:0] i_b,	
+	output [255:0] o_result,
+	output         o_finished
+);
+
+logic         busy_r, busy_w, finished_r, finished_w;
+logic [7:0]   cnt_r, cnt_w;
+logic [256:0] diff, tmp;
+logic [255:0] t_w, t_r;
+
+assign o_result = t_r;
+assign o_finished = finished_r;
+assign tmp = {t_r, 1'b0};
+assign diff = tmp - {1'b0, i_n};
+
+always_comb begin
+	cnt_w = cnt_r;
+	t_w = t_r;
+	busy_w = busy_r;
+	finished_w = 1'b0;
+	if (busy_r) begin
+		t_w = diff[256] ? tmp[255:0] : diff[255:0];
+		cnt_w = cnt_r + 8'd1;
+		if (cnt_r == 8'd255) begin
+			busy_w     = 1'b0;
+			finished_w = 1'b1;
+		end
+	end else if (i_start) begin
+		busy_w = 1'b1;
+		cnt_w  = 8'd0;
+		t_w    = i_b;
+	end
+end
+
+always_ff @(posedge i_clk or posedge i_rst) begin
+	if (i_rst) begin
+		finished_r <= 1'b0;
+		busy_r     <= 1'b0;
+		cnt_r      <= 8'd0;
+		t_r		   <= 256'd0;
+	end else begin
+		finished_r <= finished_w;
+		busy_r     <= busy_w;
+		cnt_r      <= cnt_w;
+		t_r		   <= t_w;
+	end
+end
+
+endmodule
+
+// Montgomery multiplication: (a*b*2^(-256)) mod n
 module RsaMont (
 	input          i_clk,
 	input          i_rst,

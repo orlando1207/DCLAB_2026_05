@@ -1,0 +1,24 @@
+#-----------------------------------------------------------
+# Vivado v2024.2 (64-bit)
+# SW Build 5239630 on Fri Nov 08 22:35:27 MST 2024
+# IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
+# SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
+# Start of session at: Fri Oct  2 18:59:30 2026
+# Process ID         : 10996
+# Current directory  : C:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab1/NEXYS_A7/NEXYS_A7/NEXYS_A7.runs/impl_1
+# Command line       : vivado.exe -log NEXYS_A7.vdi -applog -product Vivado -messageDb vivado.pb -mode batch -source NEXYS_A7.tcl -notrace
+# Log file           : C:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab1/NEXYS_A7/NEXYS_A7/NEXYS_A7.runs/impl_1/NEXYS_A7.vdi
+# Journal file       : C:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab1/NEXYS_A7/NEXYS_A7/NEXYS_A7.runs/impl_1\vivado.jou
+# Running On         : sigamaliiin
+# Platform           : Windows Server 2016 or Windows 10
+# Operating System   : 26200
+# Processor Detail   : Intel(R) Core(TM) i7-14650HX
+# CPU Frequency      : 2419 MHz
+# CPU Physical cores : 16
+# CPU Logical cores  : 24
+# Host memory        : 34006 MB
+# Swap memory        : 15569 MB
+# Total Virtual      : 49576 MB
+# Available Virtual  : 17556 MB
+#-----------------------------------------------------------
+source NEXYS_A7.tcl -notrace
