@@ -163,7 +163,7 @@ always_ff @(posedge i_clk or posedge i_rst) begin
 		// reset logic
 		a_r <= 256'd0;
 		b_r <= 256'd0;
-		n_r <= 256'd0
+		n_r <= 256'd0;
 		m_r <= 258'd0;
 		count_r <= 8'd0;
 		state_r <= S_IDLE;
