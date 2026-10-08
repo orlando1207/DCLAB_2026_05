@@ -225,16 +225,16 @@ typedef enum logic [1:0] {
 
 state_t state_r, state_w;
 
-logic [255:0] a_r, a_w;
+logic [255:0] a;
 logic [255:0] b_r, b_w;
 logic [255:0] n_r, n_w;
 
 logic [257:0] m_r, m_w;
-logic [7:0] count_r, count_w;
+logic [8:0] count_r, count_w;
 
 logic [257:0] b_ext, n_ext; 
 
-localparam logic [7:0] MAX_ITER = 8'd255;
+// localparam logic [7:0] MAX_ITER = 8'd255;
 assign b_ext = {2'b00, b_r};
 assign n_ext = {2'b00, n_r};
 
@@ -254,7 +254,7 @@ always_comb begin
 	case (state_r)
 		S_IDLE: begin
 			if (i_start) begin
-				a_w  = i_a;
+				a  = i_a;
 				b_w  = i_b;
 				n_w  = i_n;
 				state_w = S_RUN;
@@ -263,7 +263,7 @@ always_comb begin
 			end
 		end
 		S_RUN: begin	
-			if (a_r[count_r]) begin
+			if (a[0]) begin
 				m_w = m_w + b_ext;
 			end
 			
@@ -273,7 +273,7 @@ always_comb begin
 			
 			m_w = m_w >> 1;
 
-			if (count_r == MAX_ITER) begin
+			if (count_r[8]) begin // check if count_r == 256
 				state_w = S_SUB;				
 			end else begin
 				count_w = count_w + 8'd1;
@@ -296,7 +296,7 @@ end
 always_ff @(posedge i_clk or posedge i_rst) begin
 	if (i_rst) begin
 		// reset logic
-		a_r <= 256'd0;
+		a <= 256'd0;
 		b_r <= 256'd0;
 		n_r <= 256'd0;
 		m_r <= 258'd0;
