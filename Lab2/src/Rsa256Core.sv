@@ -70,8 +70,8 @@ always_comb begin
 				d_w     = i_d;
 				n_w     = i_n;
 				
-				m_w = 255'b1;
-				t_w = 255'b0;
+				m_w = 256'd1;
+				t_w = 256'd0;
 				count_w = 8'b0;
 
 				state_w = S_PREP;
@@ -91,23 +91,24 @@ always_comb begin
 		S_MONT: begin
 			mont_2_start = 1'b1;
 
-			if (d_r[count_r]) begin
+			// d_r is shifted right once per iteration, d_r[0] is the current bit
+			if (d_r[0]) begin
 				mont_1_start = 1'b1;
-			end 
+			end
 
 			state_w = S_MONT_WAIT;
 		end
 		S_MONT_WAIT: begin
-			if (mont_2_finished && (!d_r[count_r] || mont_1_finished)) begin
+			if (mont_2_finished && (!d_r[0] || mont_1_finished)) begin
 				t_w = mont_2_out;
-				if (d_r[count_r]) begin
+				if (d_r[0]) begin
 					m_w = mont_1_out;
 				end
-				
+				// shift only after this bit is fully used
+				d_w = d_r >> 1;
+
 				if (count_r == MAX_ITER) begin
 					state_w = S_DONE;
-					o_a_pow_d = m_w;
-					o_finished = 1'b1;
 				end else begin
 					state_w = S_MONT;
 					count_w = count_r + 8'b1;
@@ -130,8 +131,8 @@ always_ff @(posedge i_clk or posedge i_rst) begin
 		a_r     <= 256'd0;
 		d_r     <= 256'd0;
 		n_r     <= 256'd0;
-		t_r <= 8'b0;
-		m_r <= 8'd1;	
+		t_r     <= 256'd0;
+		m_r     <= 256'd1;
 		count_r <= 8'b0;
 		state_r <= S_IDLE;
 	end
@@ -225,24 +226,45 @@ typedef enum logic [1:0] {
 
 state_t state_r, state_w;
 
-logic [255:0] a_r, a_w;
+logic [255:0] a_r, a_w;      // shifted right every cycle, only a_r[0] is used
 logic [255:0] b_r, b_w;
 logic [255:0] n_r, n_w;
+logic [256:0] bn_r, bn_w;    // b + n, computed once at start
 
-logic [257:0] m_r, m_w;
+logic [257:0] m_r, m_w;      // stays in [0, 2N) between iterations
 logic [7:0] count_r, count_w;
 
-logic [257:0] b_ext, n_ext; 
+logic [257:0] b_ext, n_ext, bn_ext;
+logic         q;             // 1 if (m + a_i*b) is odd, i.e. N has to be added
+logic [257:0] addend;        // 0, b, n or b+n
+logic [257:0] diff;
 
 localparam logic [7:0] MAX_ITER = 8'd255;
-assign b_ext = {2'b00, b_r};
-assign n_ext = {2'b00, n_r};
+assign b_ext  = {2'b00, b_r};
+assign n_ext  = {2'b00, n_r};
+assign bn_ext = {1'b0, bn_r};
+
+// bit 0 of (m + a_i*b) has no carry-in, so its parity is known without the adder
+assign q = m_r[0] ^ (a_r[0] & b_r[0]);
+
+always_comb begin
+	case ({a_r[0], q})
+		2'b00: addend = 258'd0;
+		2'b10: addend = b_ext;
+		2'b01: addend = n_ext;
+		2'b11: addend = bn_ext;
+	endcase
+end
+
+// final correction: m < 2N < 2^257, so diff[257] = 1 means m < N
+assign diff = m_r - n_ext;
 
 always_comb begin
 	// keep every value
-	a_w = a_r;
-	b_w = b_r;
-	n_w = n_r;
+	a_w  = a_r;
+	b_w  = b_r;
+	n_w  = n_r;
+	bn_w = bn_r;
 
 	m_w = m_r;
 	count_w = count_r;
@@ -257,30 +279,24 @@ always_comb begin
 				a_w  = i_a;
 				b_w  = i_b;
 				n_w  = i_n;
+				bn_w = {1'b0, i_b} + {1'b0, i_n};
 				state_w = S_RUN;
 				count_w = 8'd0;
 				m_w = 258'd0;
 			end
 		end
-		S_RUN: begin	
-			if (a_r[count_r]) begin
-				m_w = m_w + b_ext;
-			end
-			
-			if (m_w[0]) begin 
-				m_w = m_w + n_ext;
-			end 
-			
-			m_w = m_w >> 1;
+		S_RUN: begin
+			a_w = a_r >> 1;
+			m_w = (m_r + addend) >> 1;
 
 			if (count_r == MAX_ITER) begin
-				state_w = S_SUB;				
+				state_w = S_SUB;
 			end else begin
-				count_w = count_w + 8'd1;
+				count_w = count_r + 8'd1;
 			end
 		end
 		S_SUB: begin
-			m_w = (m_w >= n_ext) ? (m_w - n_ext) : (m_w);
+			m_w = diff[257] ? m_r : diff;
 			state_w = S_DONE;
 		end
 		S_DONE: begin 
@@ -299,6 +315,7 @@ always_ff @(posedge i_clk or posedge i_rst) begin
 		a_r <= 256'd0;
 		b_r <= 256'd0;
 		n_r <= 256'd0;
+		bn_r <= 257'd0;
 		m_r <= 258'd0;
 		count_r <= 8'd0;
 		state_r <= S_IDLE;
@@ -307,6 +324,7 @@ always_ff @(posedge i_clk or posedge i_rst) begin
 		a_r <= a_w;
 		b_r <= b_w;
 		n_r <= n_w;
+		bn_r <= bn_w;
 		m_r <= m_w;
 		count_r <= count_w;
 		state_r <= state_w;

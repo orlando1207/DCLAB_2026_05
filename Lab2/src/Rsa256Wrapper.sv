@@ -152,7 +152,7 @@ always_comb begin
                     case (state_r)
                         S_GET_N: begin
                             n_w = {n_r[247:0], s_axi_rdata[7:0]};
-                            if (user_raddr_r & 5'd31) begin   // 32nd byte
+                            if (user_raddr_r == 31) begin   // 32nd byte
                                 state_w      = S_GET_D;
                                 user_raddr_w = 0;
                             end else user_raddr_w = user_raddr_r + 5'd1;
