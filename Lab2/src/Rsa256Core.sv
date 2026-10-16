@@ -33,7 +33,7 @@ logic [255:0] t_w, t_r;
 
 assign o_result = t_r;
 assign o_finished = finished_r;
-assign tmp = {t_r, 1'b0};
+assign tmp = {t_r, 1'b0}; // multiply by 2
 assign diff = tmp - {1'b0, i_n};
 
 always_comb begin
