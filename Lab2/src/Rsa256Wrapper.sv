@@ -13,7 +13,6 @@ localparam   AXI_RXTX            = 1'b1;    // read RX (GET) / write TX (SEND)
 localparam   RX_BASE             = 0*4;
 localparam   TX_BASE             = 1*4;
 localparam   STATUS_BASE         = 2*4;
-localparam   CTRL_BASE           = 3*4;
 
 // STATUS register bits
 localparam   RX_OK_BIT           = 0;       // 1 = RX FIFO has data
@@ -29,7 +28,8 @@ localparam   S_SEND_DATA         = 4;       // send result (31 bytes)
 /********************************************************
     RSA256Core
 **********************************************************/
-logic [255:0] n_r, n_w, d_r, d_w, enc_r, enc_w, dec_r, dec_w;
+// Reuse enc_r as the result/transmit shift register after calculation.
+logic [255:0] n_r, n_w, d_r, d_w, enc_r, enc_w;
 logic rsa_start_r, rsa_start_w;
 logic rsa_finished;
 logic [255:0] rsa_dec;
@@ -121,7 +121,6 @@ always_comb begin
     n_w              = n_r;
     d_w              = d_r;
     enc_w            = enc_r;
-    dec_w            = dec_r;
     rsa_start_w      = 0;                           // one-cycle pulse
     axi_cmd_w        = axi_cmd_r;
     axi_raddr_done_w = axi_raddr_done_r;
@@ -181,7 +180,7 @@ always_comb begin
     // ---------------- Wait for RSA core ----------------
     else if (state_r == S_WAIT_CALCULATE) begin
         if (rsa_finished) begin
-            dec_w   = rsa_dec;
+            enc_w   = rsa_dec;
             state_w = S_SEND_DATA;
         end
     end
@@ -208,7 +207,7 @@ always_comb begin
                 s_axi_awvalid = !axi_waddr_done_r;
                 s_axi_awaddr  = TX_BASE;
                 s_axi_wvalid  = !axi_wdata_done_r;
-                s_axi_wdata   = dec_r[247:240];     // top byte of 31-byte message
+                s_axi_wdata   = enc_r[247:240];     // top byte of 31-byte message
                 if (s_axi_awready)
                     axi_waddr_done_w = 1;
                 if (s_axi_wready)
@@ -219,7 +218,7 @@ always_comb begin
                     axi_cmd_w        = AXI_STATUS;
                     axi_waddr_done_w = 0;
                     axi_wdata_done_w = 0;
-                    dec_w            = dec_r << 8;
+                    enc_w            = enc_r << 8;
                     if (user_waddr_r == 30) begin   // 31st byte
                         state_w      = S_GET_Y;     // key stays, wait for next y
                         user_waddr_w = 0;
@@ -235,7 +234,6 @@ always_ff @(posedge i_clk or posedge i_rst) begin
         n_r              <= 0;
         d_r              <= 0;
         enc_r            <= 0;
-        dec_r            <= 0;
         state_r          <= S_GET_N;
         rsa_start_r      <= 0;
         user_raddr_r     <= 0;
@@ -248,7 +246,6 @@ always_ff @(posedge i_clk or posedge i_rst) begin
         n_r              <= n_w;
         d_r              <= d_w;
         enc_r            <= enc_w;
-        dec_r            <= dec_w;
         state_r          <= state_w;
         rsa_start_r      <= rsa_start_w;
         user_raddr_r     <= user_raddr_w;

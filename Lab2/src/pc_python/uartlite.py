@@ -12,9 +12,9 @@ s = Serial(
     xonxoff=False,
     rtscts=False
 )
-fp_key = open('key.bin', 'rb')
-fp_enc = open('enc.bin', 'rb')
-fp_dec = open('dec.bin', 'wb')
+fp_key = open('golden/key.bin', 'rb')
+fp_enc = open('golden/enc2.bin', 'rb')
+fp_dec = open('golden/dec2_test.bin', 'wb')
 assert fp_key and fp_enc and fp_dec
 
 key = fp_key.read(64)
