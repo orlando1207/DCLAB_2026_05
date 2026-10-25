@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-from sys import argv, stdin, stdout
-from struct import unpack, pack
+from sys import argv, stdin, stdout, stderr
 
 def mul_naive(a, b, n):
     ret = 0
@@ -58,7 +57,23 @@ if __name__ == '__main__':
     val_n = 0xCA3586E7EA485F3B0A222A4C79F7DD12E85388ECCDEE4035940D774C029CF831
     val_e = 0x0000000000000000000000000000000000000000000000000000000000010001
     val_d = 0xB6ACE0B14720169839B15FD13326CF1A1829BEAFC37BB937BEC8802FBCF46BD9
-    assert len(argv) == 2, "Usage: {} e|d".format(argv[0])
+    usage = "Usage: {} e|d [pad]  or  {} unpad".format(argv[0], argv[0])
+    assert len(argv) in (2, 3) and argv[1] in ('e', 'd', 'unpad'), usage
+    assert len(argv) == 2 or argv[2] == 'pad', usage
+    use_pad = len(argv) == 3
+
+    def unpad(data):
+        """strip the padding added by 'e pad' (PKCS#7 style, 1~31 bytes)"""
+        n_pad = data[-1] if data else 0
+        assert 1 <= n_pad <= 31 and data[-n_pad:] == bytes([n_pad]) * n_pad, "bad padding"
+        return data[:-n_pad]
+
+    data = stdin.buffer.read()
+    if argv[1] == 'unpad':
+        # for the plaintext decrypted by FPGA (it still carries the padding)
+        stdout.buffer.write(unpad(data))
+        exit()
+
     if argv[1] == 'e':
         exponentiation = val_e
         r_chunk_size = 31
@@ -67,21 +82,21 @@ if __name__ == '__main__':
         exponentiation = val_d
         r_chunk_size = 32
         w_chunk_size = 31
-    while True:
-        chunk = stdin.buffer.read(r_chunk_size)
-        n_read = len(chunk)
-        if n_read < r_chunk_size:
-            if n_read != 0:
-                print("There are {} trailing bytes left (ignored).".format(n_read))
-            break
-        else:
-            vals = unpack("{}B".format(r_chunk_size), chunk)
-            msg = 0
-            for val in vals:
-                msg = (msg<<8) | val
-            # Choose one
-            # msg_new = power_naive(msg, exponentiation, val_n)
-            msg_new = power_mont(msg, exponentiation, val_n)
-            vals_new = map(lambda shamt: (msg_new>>shamt)&255, range((w_chunk_size-1)*8, -8, -8))
-            vals_new = pack("{}B".format(w_chunk_size), *vals_new)
-            stdout.buffer.write(vals_new)
+    if argv[1] == 'e' and use_pad:
+        # always pad 1~31 bytes, each byte = pad length, so the total is 31n
+        n_pad = r_chunk_size - len(data) % r_chunk_size
+        data += bytes([n_pad]) * n_pad
+    n_trailing = len(data) % r_chunk_size
+    if n_trailing != 0:
+        # stderr, so the message does not end up inside the output file
+        stderr.write("There are {} trailing bytes left (ignored).\n".format(n_trailing))
+    out = bytearray()
+    for i in range(0, len(data) - n_trailing, r_chunk_size):
+        msg = int.from_bytes(data[i:i+r_chunk_size], 'big')
+        # Choose one
+        # msg_new = power_naive(msg, exponentiation, val_n)
+        msg_new = power_mont(msg, exponentiation, val_n)
+        out += msg_new.to_bytes(w_chunk_size, 'big')
+    if argv[1] == 'd' and use_pad:
+        out = unpad(out)
+    stdout.buffer.write(out)
