@@ -6,8 +6,8 @@ module Rsa256Core (
 	// Address = {region, word}; word 0 is the least-significant word.
 	//   region 0: a (write before i_start; overwritten during the calculation)
 	//   region 1: a^d mod n (read after o_finished)
-	//   region 2: n
-	//   region 3: d
+	//   region 2: n (write only)
+	//   region 3: d (write only)
 	input         i_host_we,
 	input  [4:0]  i_host_addr,
 	input  [31:0] i_host_wdata,
@@ -16,7 +16,7 @@ module Rsa256Core (
 );
 
 // Area-first RSA engine. All 256-bit arithmetic is performed a 32-bit word
-// at a time, and every 256-bit value lives in one distributed RAM. Words are
+// at a time, and every 256-bit value lives in distributed RAM. Words are
 // addressed instead of rotated through shift registers.
 typedef enum logic [2:0] {
 	S_IDLE,
@@ -28,29 +28,29 @@ typedef enum logic [2:0] {
 	S_DONE
 } state_t;
 
-// RAM map, 64 words x 32 bits:
-//   T = t words 0-7       at {1'b0, REG_T, word} (a is loaded here)
-//   R = result words 0-7  at {1'b0, REG_R, word}
-//   N = n words 0-7       at {1'b0, REG_N, word}
-//   D = d words 0-7       at {1'b0, REG_D, word}
-//   M = accumulator 0-8   at {2'b10, word}
+// Two RAMs, both 32 words deep so each LUT holds two bit columns:
+//   work RAM: T = t      at {REG_T, word} (a is loaded here)
+//             R = result at {REG_R, word}
+//             M = accumulator words 0-8 at {1'b1, word}
+//   key RAM:  N = n at {1'b0, word}, D = d at {1'b1, word}
+// The key RAM has a single read port, shared by n words and d bits.
 localparam logic [1:0] REG_T = 2'd0;
 localparam logic [1:0] REG_R = 2'd1;
-localparam logic [1:0] REG_N = 2'd2;
-localparam logic [1:0] REG_D = 2'd3;
 
 state_t state_r;
 
-(* ram_style = "distributed" *) logic [31:0] ram [0:63];
-logic [5:0]  ram_addr_a; // t word, a_i/d bit fetch, or host read
-logic [5:0]  ram_addr_b; // M port
-logic [5:0]  ram_addr_c; // N port
-logic [5:0]  ram_addr_w;
+(* ram_style = "distributed" *) logic [31:0] ram [0:31];
+(* ram_style = "distributed" *) logic [31:0] key_ram [0:15];
+logic [4:0]  ram_addr_a; // t word, a_i fetch, or host read
+logic [4:0]  ram_addr_b; // M port
+logic [4:0]  ram_addr_w;
 logic [31:0] ram_rd_a;
 logic [31:0] ram_rd_b;
-logic [31:0] ram_rd_c;
 logic [31:0] ram_wd;
 logic        ram_we;
+logic [3:0]  key_addr;   // n word or d bit fetch
+logic [31:0] key_rd;
+logic        key_we;
 
 logic [7:0] bit_count_r; // prep step or Montgomery iteration
 logic [7:0] exp_count_r;
@@ -95,46 +95,43 @@ assign ai_index = bit_count_r + 8'd1;
 assign ai_fetch = (state_r == S_MONT_INIT)
 	|| (state_r == S_MONT_WORD && word_count_r == 4'd9);
 
-// The exponent bit for the next decision is read while port A is otherwise
-// idle: d[0] in S_LOAD (exp_count_r is 255, so +1 wraps to 0), and
-// d[exp_count_r+1] in the first word of each final reduction.
+// The exponent bit for the next decision is read while n is not needed:
+// d[0] in S_LOAD (exp_count_r is 255, so +1 wraps to 0), and d[exp_count_r+1]
+// in S_MONT_INIT, before the operation that ends with the decision.
 assign d_index = exp_count_r + 8'd1;
 assign d_fetch = (state_r == S_LOAD && word_count_r == 4'd0)
-	|| (state_r == S_SUB_CHECK && !sub_is_prep_r && word_count_r == 4'd0);
+	|| (state_r == S_MONT_INIT);
 
 always_comb begin
 	if (ai_fetch)
-		ram_addr_a = {1'b0, mont_is_square_r ? REG_T : REG_R, ai_index[7:5]};
-	else if (d_fetch)
-		ram_addr_a = {1'b0, REG_D, d_index[7:5]};
+		ram_addr_a = {mont_is_square_r ? REG_T : REG_R, ai_index[7:5]};
 	else if (host_access)
-		ram_addr_a = {1'b0, i_host_addr};
+		ram_addr_a = i_host_addr;
 	else
-		ram_addr_a = {1'b0, REG_T, word_count_r[2:0]};
+		ram_addr_a = {REG_T, word_count_r[2:0]};
 end
-assign ram_addr_b = {2'b10, word_count_r};
-assign ram_addr_c = {1'b0, REG_N, word_count_r[2:0]};
-assign n_word = word_count_r[3] ? 32'd0 : ram_rd_c;
+assign ram_addr_b = {1'b1, word_count_r};
+assign key_addr = d_fetch ? {1'b1, d_index[7:5]} : {1'b0, word_count_r[2:0]};
+assign n_word = word_count_r[3] ? 32'd0 : key_rd;
 
 always_comb begin
 	ram_we     = 1'b0;
-	ram_addr_w = {2'b10, word_count_r - 4'd1};
+	ram_addr_w = {1'b1, word_count_r - 4'd1};
 	ram_wd     = {mont_total[0], mont_upper_r};
 	case (state_r)
 		S_IDLE, S_DONE: begin
-			ram_we     = i_host_we;
-			ram_addr_w = {1'b0, i_host_addr};
+			ram_we     = i_host_we && !i_host_addr[4];
+			ram_addr_w = i_host_addr;
 			ram_wd     = i_host_wdata;
 		end
 		S_LOAD: begin
 			ram_we     = 1'b1;
-			ram_addr_w = {1'b0, REG_R, word_count_r[2:0]};
+			ram_addr_w = {REG_R, word_count_r[2:0]};
 			ram_wd     = {31'd0, word_count_r == 4'd0};
 		end
 		S_SUB_WRITE: begin
 			ram_we     = 1'b1;
-			ram_addr_w = {1'b0,
-			              (sub_is_prep_r || mont_is_square_r) ? REG_T : REG_R,
+			ram_addr_w = {(sub_is_prep_r || mont_is_square_r) ? REG_T : REG_R,
 			              word_count_r[2:0]};
 			ram_wd     = sub_write_word;
 		end
@@ -147,13 +144,17 @@ always_comb begin
 	endcase
 end
 
+assign key_we = host_access && i_host_we && i_host_addr[4];
+
 always_ff @(posedge i_clk) begin
 	if (ram_we)
 		ram[ram_addr_w] <= ram_wd;
+	if (key_we)
+		key_ram[i_host_addr[3:0]] <= i_host_wdata;
 end
 assign ram_rd_a = ram[ram_addr_a];
 assign ram_rd_b = ram[ram_addr_b];
-assign ram_rd_c = ram[ram_addr_c];
+assign key_rd   = key_ram[key_addr];
 
 // Conditional subtraction shared by preparation (t = 2t mod n) and the final
 // Montgomery correction (m mod n). The first pass only finds the final
@@ -287,7 +288,7 @@ end
 // initializes every value before it is consumed.
 always_ff @(posedge i_clk) begin
 	if (d_fetch)
-		d_bit_r <= ram_rd_a[d_index[4:0]];
+		d_bit_r <= key_rd[d_index[4:0]];
 
 	case (state_r)
 		S_IDLE: begin

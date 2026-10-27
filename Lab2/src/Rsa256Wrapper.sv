@@ -125,9 +125,16 @@ always_comb begin
     s_axi_arvalid = 0;
     s_axi_rready  = 0;
 
-    // Core host port: read the result byte being sent by default
+    // Core host port: word being received, or the result word being sent.
+    // The address depends only on registers, which keeps it short on the
+    // core's RAM-read-to-adder timing path.
     host_we          = 0;
-    host_addr        = {REG_RESULT, user_waddr_r[4:2]};
+    case (state_r)
+        S_GET_N: host_addr = {REG_N, ~user_raddr_r[4:2]};
+        S_GET_D: host_addr = {REG_D, ~user_raddr_r[4:2]};
+        S_GET_Y: host_addr = {REG_A, ~user_raddr_r[4:2]};
+        default: host_addr = {REG_RESULT, user_waddr_r[4:2]};
+    endcase
     host_wdata       = {word_buf_r, s_axi_rdata[7:0]};
 
     // Registers: hold by default
@@ -163,9 +170,6 @@ always_comb begin
                     // Every 4th byte completes a word. The first word
                     // received is the most significant one (word 7).
                     host_we    = (user_raddr_r[1:0] == 2'd3);
-                    host_addr  = {(state_r == S_GET_N) ? REG_N :
-                                  (state_r == S_GET_D) ? REG_D : REG_A,
-                                  ~user_raddr_r[4:2]};
                     if (user_raddr_r == 31) begin   // 32nd byte
                         user_raddr_w = 0;
                         case (state_r)
