@@ -2,64 +2,76 @@ module Rsa256Core (
 	input          i_clk,
 	input          i_rst,
 	input          i_start,
-	input  [255:0] i_a,
-	input  [255:0] i_d,
-	input  [255:0] i_n,
+	input  [255:0] i_a, // only valid in the i_start cycle
+	input  [255:0] i_d, // held by Rsa256Wrapper while busy
+	input  [255:0] i_n, // held by Rsa256Wrapper while busy
 	output [255:0] o_a_pow_d,
 	output         o_finished
 );
 
 // Area-first RSA engine. All 256-bit arithmetic is performed a 32-bit word
-// at a time. The wrapper holds i_d and i_n stable while the core is busy.
-typedef enum logic [3:0] {
+// at a time. The working values (t, result, Montgomery accumulator) live in
+// one distributed RAM, so words are addressed instead of rotated through
+// 256-bit shift registers.
+typedef enum logic [2:0] {
 	S_IDLE,
-	S_PREP_SUB,
-	S_PREP_WRITE,
-	S_MONT_INIT,
-	S_MONT_WORD,
-	S_MONT_FLUSH,
-	S_REDUCE_CHECK,
-	S_REDUCE_WRITE,
+	S_LOAD,      // copy a into T and 1 into R
+	S_SUB_CHECK, // borrow of x-n; x = 2t (prep) or m (reduce)
+	S_SUB_WRITE, // write x or x-n back to T or R
+	S_MONT_INIT, // fetch multiplier bit 0
+	S_MONT_WORD, // one Montgomery iteration: words 0..8, then a flush word
 	S_DONE
 } state_t;
 
+// RAM map, 32 words x 32 bits:
+//   T = t words 0-7       at {2'b00, word}
+//   R = result words 0-7  at {2'b01, word}
+//   M = accumulator 0-8   at {1'b1, word}
+localparam logic [1:0] REG_T = 2'b00;
+localparam logic [1:0] REG_R = 2'b01;
+
 state_t state_r;
 
-logic [255:0] t_r;
-logic [255:0] result_r;
-logic [287:0] mont_r;
+(* ram_style = "distributed" *) logic [31:0] ram [0:31];
+logic [4:0]  ram_addr_a; // T/R port: t word, or multiplier word for a_i
+logic [4:0]  ram_addr_b; // M port
+logic [4:0]  ram_addr_w;
+logic [31:0] ram_rd_a;
+logic [31:0] ram_rd_b;
+logic [31:0] ram_wd;
+logic        ram_we;
 
-logic [7:0] prep_count_r;
-logic [7:0] mont_count_r;
+logic [255:0] a_r;      // i_a captured in the start cycle
+logic [255:0] result_r; // output copy of R, rewritten by every multiply (d != 0)
+
+logic [7:0] bit_count_r; // prep step or Montgomery iteration
 logic [7:0] exp_count_r;
 logic [3:0] word_count_r;
 logic       mont_is_square_r;
+logic       sub_is_prep_r;
 
-logic        prep_borrow_r;
-logic        prep_final_borrow_r;
+logic        sub_borrow_r;
+logic        sub_final_borrow_r;
 logic        prep_shift_carry_r;
-logic        reduce_borrow_r;
-logic        reduce_final_borrow_r;
 logic [1:0]  mont_carry_r;
 logic [30:0] mont_upper_r;
 logic        mont_ai_r;
 logic        mont_q_r;
 
 logic [31:0] n_word;
-logic [31:0] t_word;
-logic [31:0] prep_raw_word;
-logic [32:0] prep_sub_ext;
-logic [31:0] prep_write_word;
+logic [31:0] a_word;
+logic [7:0]  ai_index;
+logic        ai_fetch;
+logic        ai_bit;
 
-logic        mont_next_source_bit;
-logic        mont_q_first;
+logic [31:0] sub_x;
+logic [32:0] sub_ext;
+logic [31:0] sub_write_word;
+
+logic [31:0] mont_m_word;
 logic        mont_q;
 logic [1:0]  mont_carry_in;
 logic [33:0] mont_total;
-logic [31:0] mont_insert_word;
-
-logic [32:0] reduce_sub_ext;
-logic [31:0] reduce_write_word;
 
 assign o_a_pow_d = result_r;
 assign o_finished = (state_r == S_DONE);
@@ -80,126 +92,131 @@ always_comb begin
 	endcase
 end
 
-assign t_word = t_r[31:0];
+assign a_word = a_r[{word_count_r[2:0], 5'd0} +: 32];
 
-// Preparation computes (2*t)-n into mont_r. A second pass selects the
-// subtraction or unreduced 2*t after the final borrow is known.
-assign prep_raw_word = (word_count_r == 4'd8)
-	? {31'd0, prep_shift_carry_r}
-	: {t_word[30:0], prep_shift_carry_r};
-assign prep_sub_ext = {1'b0, prep_raw_word}
-	                    - {1'b0, n_word} - prep_borrow_r;
-assign prep_write_word = prep_final_borrow_r
-	? {t_word[30:0], prep_shift_carry_r}
-	: mont_r[31:0];
+// The multiplier bit a_i is read from RAM: bit 0 in S_MONT_INIT, bit i+1 in
+// the flush word of iteration i. bit_count_r is 255 in S_MONT_INIT, so
+// bit_count_r+1 wraps to 0 there.
+assign ai_index = bit_count_r + 8'd1;
+assign ai_fetch = (state_r == S_MONT_INIT)
+	|| (state_r == S_MONT_WORD && word_count_r == 4'd9);
+assign ai_bit = ram_rd_a[ai_index[4:0]];
 
-// The next multiplier bit is prefetched during S_MONT_FLUSH. This keeps the
-// 256-to-1 indexed selection out of the following 32-bit adder path.
-assign mont_next_source_bit = mont_is_square_r
-	? t_r[mont_count_r + 8'd1] : result_r[mont_count_r + 8'd1];
-assign mont_q_first = mont_r[0] ^ (mont_ai_r & t_r[0]);
-assign mont_q = (word_count_r == 4'd0) ? mont_q_first : mont_q_r;
-assign mont_carry_in = (word_count_r == 4'd0) ? 2'd0 : mont_carry_r;
+assign ram_addr_a = ai_fetch
+	? {mont_is_square_r ? REG_T : REG_R, ai_index[7:5]}
+	: {REG_T, word_count_r[2:0]};
+assign ram_addr_b = {1'b1, word_count_r};
+
+always_comb begin
+	ram_we     = 1'b0;
+	ram_addr_w = {1'b1, word_count_r - 4'd1};
+	ram_wd     = {mont_total[0], mont_upper_r};
+	case (state_r)
+		S_LOAD: begin
+			ram_we     = 1'b1;
+			ram_addr_w = {1'b0, word_count_r}; // T, then R
+			ram_wd     = word_count_r[3] ? {31'd0, word_count_r == 4'd8}
+			                             : a_word;
+		end
+		S_SUB_WRITE: begin
+			ram_we     = 1'b1;
+			ram_addr_w = {(sub_is_prep_r || mont_is_square_r) ? REG_T : REG_R,
+			              word_count_r[2:0]};
+			ram_wd     = sub_write_word;
+		end
+		S_MONT_WORD: begin
+			// Word w of m/2 is complete one cycle after word w is read.
+			ram_we = (word_count_r != 4'd0);
+		end
+		default: begin
+		end
+	endcase
+end
+
+always_ff @(posedge i_clk) begin
+	if (ram_we)
+		ram[ram_addr_w] <= ram_wd;
+end
+assign ram_rd_a = ram[ram_addr_a];
+assign ram_rd_b = ram[ram_addr_b];
+
+// Conditional subtraction shared by preparation (t = 2t mod n) and the final
+// Montgomery correction (m mod n). The first pass only finds the final
+// borrow; the second pass recomputes x-n and writes x or x-n.
+always_comb begin
+	if (!sub_is_prep_r)
+		sub_x = ram_rd_b;
+	else if (word_count_r == 4'd8)
+		sub_x = {31'd0, prep_shift_carry_r};
+	else
+		sub_x = {ram_rd_a[30:0], prep_shift_carry_r};
+end
+assign sub_ext = {1'b0, sub_x} - {1'b0, n_word} - sub_borrow_r;
+assign sub_write_word = sub_final_borrow_r ? sub_x : sub_ext[31:0];
 
 // One radix-2 Montgomery iteration is evaluated least-significant word first.
-// Division by two is assembled across adjacent words.
-assign mont_total = {2'b00, mont_r[31:0]}
+// M is treated as zero in the first iteration, so it never needs clearing.
+// Word 9 adds only the carry and flushes the top word of m/2.
+assign mont_m_word = (bit_count_r == 8'd0 || word_count_r == 4'd9)
+	? 32'd0 : ram_rd_b;
+assign mont_q = (word_count_r == 4'd0)
+	? mont_m_word[0] ^ (mont_ai_r & ram_rd_a[0]) : mont_q_r;
+assign mont_carry_in = (word_count_r == 4'd0) ? 2'd0 : mont_carry_r;
+assign mont_total = {2'b00, mont_m_word}
 	                + {2'b00, ((mont_ai_r && word_count_r < 4'd8)
-	                            ? t_word : 32'd0)}
-	                + {2'b00, (mont_q  ? n_word : 32'd0)}
+	                            ? ram_rd_a : 32'd0)}
+	                + {2'b00, (mont_q ? n_word : 32'd0)}
 	                + {{32{1'b0}}, mont_carry_in};
-assign mont_insert_word = (word_count_r == 4'd0)
-	? 32'd0 : {mont_total[0], mont_upper_r};
-
-// Final correction first finds whether m<n, then writes either m or m-n to
-// the selected destination one word per cycle.
-assign reduce_sub_ext = {1'b0, mont_r[31:0]}
-	                   - {1'b0, n_word} - reduce_borrow_r;
-assign reduce_write_word = reduce_final_borrow_r
-	? mont_r[31:0] : reduce_sub_ext[31:0];
 
 // Small control registers retain the required asynchronous reset behavior.
 always_ff @(posedge i_clk or posedge i_rst) begin
 	if (i_rst) begin
 		state_r          <= S_IDLE;
-		prep_count_r     <= 8'd0;
-		mont_count_r     <= 8'd0;
+		bit_count_r      <= 8'd0;
 		exp_count_r      <= 8'd0;
 		word_count_r     <= 4'd0;
 		mont_is_square_r <= 1'b0;
+		sub_is_prep_r    <= 1'b0;
 	end else begin
 		case (state_r)
 			S_IDLE: begin
 				if (i_start) begin
-					prep_count_r <= 8'd0;
-					exp_count_r  <= 8'd0;
-					word_count_r <= 4'd0;
-					state_r      <= S_PREP_SUB;
+					bit_count_r   <= 8'd0;
+					exp_count_r   <= 8'd0;
+					word_count_r  <= 4'd0;
+					sub_is_prep_r <= 1'b1;
+					state_r       <= S_LOAD;
 				end
 			end
 
-			S_PREP_SUB: begin
+			S_LOAD: begin
+				word_count_r <= word_count_r + 4'd1; // 15 wraps to 0
+				if (word_count_r == 4'd15)
+					state_r <= S_SUB_CHECK;
+			end
+
+			S_SUB_CHECK: begin
 				if (word_count_r == 4'd8) begin
 					word_count_r <= 4'd0;
-					state_r      <= S_PREP_WRITE;
+					state_r      <= S_SUB_WRITE;
 				end else begin
 					word_count_r <= word_count_r + 4'd1;
 				end
 			end
 
-			S_PREP_WRITE: begin
+			S_SUB_WRITE: begin
 				if (word_count_r == 4'd7) begin
 					word_count_r <= 4'd0;
-					if (prep_count_r == 8'd255) begin
-						mont_is_square_r <= !i_d[0];
-						state_r          <= S_MONT_INIT;
-					end else begin
-						prep_count_r <= prep_count_r + 8'd1;
-						state_r      <= S_PREP_SUB;
-					end
-				end else begin
-					word_count_r <= word_count_r + 4'd1;
-				end
-			end
-
-			S_MONT_INIT: begin
-				mont_count_r <= 8'd0;
-				word_count_r <= 4'd0;
-				state_r      <= S_MONT_WORD;
-			end
-
-			S_MONT_WORD: begin
-				if (word_count_r == 4'd8) begin
-					word_count_r <= 4'd0;
-					state_r      <= S_MONT_FLUSH;
-				end else begin
-					word_count_r <= word_count_r + 4'd1;
-				end
-			end
-
-			S_MONT_FLUSH: begin
-				word_count_r <= 4'd0;
-				if (mont_count_r == 8'd255) begin
-					state_r <= S_REDUCE_CHECK;
-				end else begin
-					mont_count_r <= mont_count_r + 8'd1;
-					state_r      <= S_MONT_WORD;
-				end
-			end
-
-			S_REDUCE_CHECK: begin
-				if (word_count_r == 4'd8) begin
-					word_count_r <= 4'd0;
-					state_r      <= S_REDUCE_WRITE;
-				end else begin
-					word_count_r <= word_count_r + 4'd1;
-				end
-			end
-
-			S_REDUCE_WRITE: begin
-				if (word_count_r == 4'd7) begin
-					word_count_r <= 4'd0;
-					if (mont_is_square_r) begin
+					if (sub_is_prep_r) begin
+						if (bit_count_r == 8'd255) begin
+							sub_is_prep_r    <= 1'b0;
+							mont_is_square_r <= !i_d[0];
+							state_r          <= S_MONT_INIT;
+						end else begin
+							bit_count_r <= bit_count_r + 8'd1;
+							state_r     <= S_SUB_CHECK;
+						end
+					end else if (mont_is_square_r) begin
 						if (exp_count_r == 8'd254) begin
 							exp_count_r <= 8'd255;
 							if (i_d[255]) begin
@@ -224,96 +241,71 @@ always_ff @(posedge i_clk or posedge i_rst) begin
 				end
 			end
 
+			S_MONT_INIT: begin
+				bit_count_r <= bit_count_r + 8'd1; // 255 wraps to 0
+				state_r     <= S_MONT_WORD;
+			end
+
+			S_MONT_WORD: begin
+				if (word_count_r == 4'd9) begin
+					word_count_r <= 4'd0;
+					if (bit_count_r == 8'd255)
+						state_r <= S_SUB_CHECK;
+					else
+						bit_count_r <= bit_count_r + 8'd1;
+				end else begin
+					word_count_r <= word_count_r + 4'd1;
+				end
+			end
+
 			S_DONE: state_r <= S_IDLE;
 			default: state_r <= S_IDLE;
 		endcase
 	end
 end
 
-// Wide datapath registers intentionally have no reset. The control state
+// Datapath registers intentionally have no reset. The control state
 // initializes every value before it is consumed.
 always_ff @(posedge i_clk) begin
 	case (state_r)
 		S_IDLE: begin
 			if (i_start) begin
-				t_r                   <= i_a;
-				result_r              <= 256'd1;
-				mont_r                <= 288'd0;
-				prep_borrow_r         <= 1'b0;
-				prep_final_borrow_r   <= 1'b0;
-				prep_shift_carry_r    <= 1'b0;
-				reduce_borrow_r       <= 1'b0;
-				reduce_final_borrow_r <= 1'b0;
-				mont_carry_r          <= 2'd0;
-				mont_upper_r          <= 31'd0;
-				mont_ai_r             <= 1'b0;
-				mont_q_r              <= 1'b0;
-			end
-		end
-
-		S_PREP_SUB: begin
-			mont_r        <= {prep_sub_ext[31:0], mont_r[287:32]};
-			prep_borrow_r <= prep_sub_ext[32];
-			if (word_count_r < 4'd8) begin
-				t_r                <= {t_word, t_r[255:32]};
-				prep_shift_carry_r <= t_word[31];
-			end else begin
-				prep_final_borrow_r <= prep_sub_ext[32];
-				prep_shift_carry_r  <= 1'b0;
-			end
-		end
-
-		S_PREP_WRITE: begin
-			t_r                <= {prep_write_word, t_r[255:32]};
-			mont_r             <= {32'd0, mont_r[287:32]};
-			prep_shift_carry_r <= t_word[31];
-			if (word_count_r == 4'd7) begin
-				mont_r             <= 288'd0;
-				prep_borrow_r      <= 1'b0;
+				a_r                <= i_a;
+				sub_borrow_r       <= 1'b0;
 				prep_shift_carry_r <= 1'b0;
 			end
 		end
 
-		S_MONT_INIT: begin
-			mont_r        <= 288'd0;
-			mont_carry_r <= 2'd0;
-			mont_upper_r <= 31'd0;
-			mont_ai_r    <= mont_is_square_r ? t_r[0] : result_r[0];
+		S_SUB_CHECK: begin
+			sub_borrow_r       <= sub_ext[32];
+			prep_shift_carry_r <= ram_rd_a[31];
+			if (word_count_r == 4'd8) begin
+				sub_final_borrow_r <= sub_ext[32];
+				sub_borrow_r       <= 1'b0;
+				prep_shift_carry_r <= 1'b0;
+			end
 		end
+
+		S_SUB_WRITE: begin
+			sub_borrow_r       <= sub_ext[32];
+			prep_shift_carry_r <= ram_rd_a[31];
+			if (word_count_r == 4'd7) begin
+				sub_borrow_r       <= 1'b0;
+				prep_shift_carry_r <= 1'b0;
+			end
+			if (!sub_is_prep_r && !mont_is_square_r)
+				result_r[{word_count_r[2:0], 5'd0} +: 32] <= sub_write_word;
+		end
+
+		S_MONT_INIT: mont_ai_r <= ai_bit;
 
 		S_MONT_WORD: begin
-			mont_r        <= {mont_insert_word, mont_r[287:32]};
 			mont_carry_r <= mont_total[33:32];
 			mont_upper_r <= mont_total[31:1];
-			if (word_count_r == 4'd0) begin
-				mont_q_r  <= mont_q_first;
-			end
-			if (word_count_r < 4'd8)
-				t_r <= {t_word, t_r[255:32]};
-		end
-
-		S_MONT_FLUSH: begin
-			mont_r <= {{mont_carry_r[0], mont_upper_r}, mont_r[287:32]};
-			if (mont_count_r != 8'd255)
-				mont_ai_r <= mont_next_source_bit;
-		end
-
-		S_REDUCE_CHECK: begin
-			mont_r          <= {mont_r[31:0], mont_r[287:32]};
-			reduce_borrow_r <= reduce_sub_ext[32];
-			if (word_count_r == 4'd8) begin
-				reduce_final_borrow_r <= reduce_sub_ext[32];
-				reduce_borrow_r       <= 1'b0;
-			end
-		end
-
-		S_REDUCE_WRITE: begin
-			mont_r          <= {32'd0, mont_r[287:32]};
-			reduce_borrow_r <= reduce_sub_ext[32];
-			if (mont_is_square_r)
-				t_r <= {reduce_write_word, t_r[255:32]};
-			else
-				result_r <= {reduce_write_word, result_r[255:32]};
+			if (word_count_r == 4'd0)
+				mont_q_r <= mont_q;
+			if (word_count_r == 4'd9)
+				mont_ai_r <= ai_bit;
 		end
 
 		default: begin
