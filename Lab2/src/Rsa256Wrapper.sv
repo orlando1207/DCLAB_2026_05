@@ -28,20 +28,28 @@ localparam   S_SEND_DATA         = 4;       // send result (31 bytes)
 /********************************************************
     RSA256Core
 **********************************************************/
-// Reuse enc_r as the result/transmit shift register after calculation.
-logic [255:0] n_r, n_w, d_r, d_w, enc_r, enc_w;
+// N, d, y and the result live in Rsa256Core's RAM. Bytes arrive most
+// significant first and are packed into 32-bit words here.
+localparam   REG_A               = 2'd0;    // Rsa256Core host port regions
+localparam   REG_RESULT          = 2'd1;
+localparam   REG_N               = 2'd2;
+localparam   REG_D               = 2'd3;
+
+logic [23:0] word_buf_r, word_buf_w;                // first 3 bytes of a word
+logic        host_we;
+logic [4:0]  host_addr;
+logic [31:0] host_wdata, host_rdata;
 logic rsa_start_r, rsa_start_w;
 logic rsa_finished;
-logic [255:0] rsa_dec;
 
 Rsa256Core rsa256_core(
     .i_clk(i_clk),
     .i_rst(i_rst),
     .i_start(rsa_start_r),
-    .i_a(enc_r),
-    .i_d(d_r),
-    .i_n(n_r),
-    .o_a_pow_d(rsa_dec),
+    .i_host_we(host_we),
+    .i_host_addr(host_addr),
+    .i_host_wdata(host_wdata),
+    .o_host_rdata(host_rdata),
     .o_finished(rsa_finished)
 );
 
@@ -103,7 +111,7 @@ logic       axi_raddr_done_r, axi_raddr_done_w;     // ar accepted, waiting for 
 logic       axi_waddr_done_r, axi_waddr_done_w;     // aw accepted
 logic       axi_wdata_done_r, axi_wdata_done_w;     // w accepted
 logic [4:0] user_raddr_r, user_raddr_w;             // bytes received
-logic [4:0] user_waddr_r, user_waddr_w;             // bytes sent
+logic [4:0] user_waddr_r, user_waddr_w;             // result byte to send, 30..0
 logic [2:0] state_r, state_w;
 
 always_comb begin
@@ -117,10 +125,13 @@ always_comb begin
     s_axi_arvalid = 0;
     s_axi_rready  = 0;
 
+    // Core host port: read the result byte being sent by default
+    host_we          = 0;
+    host_addr        = {REG_RESULT, user_waddr_r[4:2]};
+    host_wdata       = {word_buf_r, s_axi_rdata[7:0]};
+
     // Registers: hold by default
-    n_w              = n_r;
-    d_w              = d_r;
-    enc_w            = enc_r;
+    word_buf_w       = word_buf_r;
     rsa_start_w      = 0;                           // one-cycle pulse
     axi_cmd_w        = axi_cmd_r;
     axi_raddr_done_w = axi_raddr_done_r;
@@ -147,31 +158,25 @@ always_comb begin
                     if (s_axi_rdata[RX_OK_BIT])
                         axi_cmd_w = AXI_RXTX;
                 end else begin                      // RX read: store byte (MSB first)
-                    axi_cmd_w = AXI_STATUS;
-                    case (state_r)
-                        S_GET_N: begin
-                            n_w = {n_r[247:0], s_axi_rdata[7:0]};
-                            if (user_raddr_r == 31) begin   // 32nd byte
-                                state_w      = S_GET_D;
-                                user_raddr_w = 0;
-                            end else user_raddr_w = user_raddr_r + 5'd1;
-                        end
-                        S_GET_D: begin
-                            d_w = {d_r[247:0], s_axi_rdata[7:0]};
-                            if (user_raddr_r == 31) begin   // 32nd byte
-                                state_w      = S_GET_Y;
-                                user_raddr_w = 0;
-                            end else user_raddr_w = user_raddr_r + 5'd1;
-                        end
-                        S_GET_Y: begin
-                            enc_w = {enc_r[247:0], s_axi_rdata[7:0]};
-                            if (user_raddr_r == 31) begin   // 32nd byte
-                                state_w      = S_WAIT_CALCULATE;
-                                rsa_start_w  = 1;
-                                user_raddr_w = 0;
-                            end else user_raddr_w = user_raddr_r + 5'd1;
-                        end
-                    endcase
+                    axi_cmd_w  = AXI_STATUS;
+                    word_buf_w = {word_buf_r[15:0], s_axi_rdata[7:0]};
+                    // Every 4th byte completes a word. The first word
+                    // received is the most significant one (word 7).
+                    host_we    = (user_raddr_r[1:0] == 2'd3);
+                    host_addr  = {(state_r == S_GET_N) ? REG_N :
+                                  (state_r == S_GET_D) ? REG_D : REG_A,
+                                  ~user_raddr_r[4:2]};
+                    if (user_raddr_r == 31) begin   // 32nd byte
+                        user_raddr_w = 0;
+                        case (state_r)
+                            S_GET_N: state_w = S_GET_D;
+                            S_GET_D: state_w = S_GET_Y;
+                            default: begin
+                                state_w     = S_WAIT_CALCULATE;
+                                rsa_start_w = 1;
+                            end
+                        endcase
+                    end else user_raddr_w = user_raddr_r + 5'd1;
                 end
             end
         end
@@ -180,8 +185,8 @@ always_comb begin
     // ---------------- Wait for RSA core ----------------
     else if (state_r == S_WAIT_CALCULATE) begin
         if (rsa_finished) begin
-            enc_w   = rsa_dec;
-            state_w = S_SEND_DATA;
+            user_waddr_w = 30;                      // result bits 247:0
+            state_w      = S_SEND_DATA;
         end
     end
 
@@ -207,7 +212,7 @@ always_comb begin
                 s_axi_awvalid = !axi_waddr_done_r;
                 s_axi_awaddr  = TX_BASE;
                 s_axi_wvalid  = !axi_wdata_done_r;
-                s_axi_wdata   = enc_r[247:240];     // top byte of 31-byte message
+                s_axi_wdata   = host_rdata[{user_waddr_r[1:0], 3'd0} +: 8];
                 if (s_axi_awready)
                     axi_waddr_done_w = 1;
                 if (s_axi_wready)
@@ -218,11 +223,9 @@ always_comb begin
                     axi_cmd_w        = AXI_STATUS;
                     axi_waddr_done_w = 0;
                     axi_wdata_done_w = 0;
-                    enc_w            = enc_r << 8;
-                    if (user_waddr_r == 30) begin   // 31st byte
+                    if (user_waddr_r == 0) begin    // 31st byte
                         state_w      = S_GET_Y;     // key stays, wait for next y
-                        user_waddr_w = 0;
-                    end else user_waddr_w = user_waddr_r + 5'd1;
+                    end else user_waddr_w = user_waddr_r - 5'd1;
                 end
             end
         end
@@ -231,9 +234,7 @@ end
 
 always_ff @(posedge i_clk or posedge i_rst) begin
     if (i_rst) begin
-        n_r              <= 0;
-        d_r              <= 0;
-        enc_r            <= 0;
+        word_buf_r       <= 0;
         state_r          <= S_GET_N;
         rsa_start_r      <= 0;
         user_raddr_r     <= 0;
@@ -243,9 +244,7 @@ always_ff @(posedge i_clk or posedge i_rst) begin
         axi_waddr_done_r <= 0;
         axi_wdata_done_r <= 0;
     end else begin
-        n_r              <= n_w;
-        d_r              <= d_w;
-        enc_r            <= enc_w;
+        word_buf_r       <= word_buf_w;
         state_r          <= state_w;
         rsa_start_r      <= rsa_start_w;
         user_raddr_r     <= user_raddr_w;
