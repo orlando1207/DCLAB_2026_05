@@ -29,20 +29,22 @@ localparam   S_SEND_DATA         = 4;       // send result (31 bytes)
     RSA256Core
 **********************************************************/
 // N, d, y and the result live in Rsa256Core's RAM. Bytes arrive most
-// significant first and are packed into 32-bit words here.
+// significant first and are packed into W-bit words here.
+localparam   W                   = 16;      // Rsa256Core word width
+localparam   BPW                 = $clog2(W/8); // log2(bytes per word)
 localparam   REG_A               = 2'd0;    // Rsa256Core host port regions
 localparam   REG_RESULT          = 2'd1;
 localparam   REG_N               = 2'd2;
 localparam   REG_D               = 2'd3;
 
-logic [23:0] word_buf_r, word_buf_w;                // first 3 bytes of a word
-logic        host_we;
-logic [4:0]  host_addr;
-logic [31:0] host_wdata, host_rdata;
+logic [W-9:0] word_buf_r, word_buf_w;              // earlier bytes of a word
+logic         host_we;
+logic [6-BPW:0] host_addr;
+logic [W-1:0] host_wdata, host_rdata;
 logic rsa_start_r, rsa_start_w;
 logic rsa_finished;
 
-Rsa256Core rsa256_core(
+Rsa256Core #(.W(W)) rsa256_core(
     .i_clk(i_clk),
     .i_rst(i_rst),
     .i_start(rsa_start_r),
@@ -130,10 +132,10 @@ always_comb begin
     // core's RAM-read-to-adder timing path.
     host_we          = 0;
     case (state_r)
-        S_GET_N: host_addr = {REG_N, ~user_raddr_r[4:2]};
-        S_GET_D: host_addr = {REG_D, ~user_raddr_r[4:2]};
-        S_GET_Y: host_addr = {REG_A, ~user_raddr_r[4:2]};
-        default: host_addr = {REG_RESULT, user_waddr_r[4:2]};
+        S_GET_N: host_addr = {REG_N, ~user_raddr_r[4:BPW]};
+        S_GET_D: host_addr = {REG_D, ~user_raddr_r[4:BPW]};
+        S_GET_Y: host_addr = {REG_A, ~user_raddr_r[4:BPW]};
+        default: host_addr = {REG_RESULT, user_waddr_r[4:BPW]};
     endcase
     host_wdata       = {word_buf_r, s_axi_rdata[7:0]};
 
@@ -166,10 +168,10 @@ always_comb begin
                         axi_cmd_w = AXI_RXTX;
                 end else begin                      // RX read: store byte (MSB first)
                     axi_cmd_w  = AXI_STATUS;
-                    word_buf_w = {word_buf_r[15:0], s_axi_rdata[7:0]};
-                    // Every 4th byte completes a word. The first word
-                    // received is the most significant one (word 7).
-                    host_we    = (user_raddr_r[1:0] == 2'd3);
+                    word_buf_w = {word_buf_r, s_axi_rdata[7:0]};  // keeps the newest W-8 bits
+                    // The last byte of each word completes it. The first
+                    // word received is the most significant one.
+                    host_we    = (user_raddr_r[BPW-1:0] == '1);
                     if (user_raddr_r == 31) begin   // 32nd byte
                         user_raddr_w = 0;
                         case (state_r)
@@ -216,7 +218,7 @@ always_comb begin
                 s_axi_awvalid = !axi_waddr_done_r;
                 s_axi_awaddr  = TX_BASE;
                 s_axi_wvalid  = !axi_wdata_done_r;
-                s_axi_wdata   = host_rdata[{user_waddr_r[1:0], 3'd0} +: 8];
+                s_axi_wdata   = host_rdata[{user_waddr_r[BPW-1:0], 3'd0} +: 8];
                 if (s_axi_awready)
                     axi_waddr_done_w = 1;
                 if (s_axi_wready)
