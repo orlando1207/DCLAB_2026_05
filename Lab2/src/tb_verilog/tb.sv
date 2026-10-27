@@ -3,6 +3,9 @@
 module tb;
 	localparam CLK = 10;
 	localparam HCLK = CLK/2;
+	localparam W = 16;      // Rsa256Core word width
+	localparam NW = 256/W;  // words per 256-bit value
+	localparam WB = $clog2(NW);
 
 	// Rsa256Core host port regions
 	localparam logic [1:0] REG_A = 2'd0;
@@ -17,11 +20,11 @@ module tb;
 	logic [247:0] golden;
 	integer fp_e, fp_d;
 
-	logic        host_we;
-	logic [4:0]  host_addr;
-	logic [31:0] host_wdata, host_rdata;
+	logic          host_we;
+	logic [WB+1:0] host_addr;
+	logic [W-1:0]  host_wdata, host_rdata;
 
-	Rsa256Core core(
+	Rsa256Core #(.W(W)) core(
 		.i_clk(clk),
 		.i_rst(rst),
 		.i_start(start_cal),
@@ -34,20 +37,20 @@ module tb;
 
 	// The core keeps every 256-bit value in RAM; move them one word at a time.
 	task automatic write_value(input logic [1:0] region, input logic [255:0] value);
-		for (int w = 0; w < 8; w++) begin
+		for (int w = 0; w < NW; w++) begin
 			host_we    <= 1'b1;
-			host_addr  <= {region, w[2:0]};
-			host_wdata <= value[32*w +: 32];
+			host_addr  <= {region, w[WB-1:0]};
+			host_wdata <= value[W*w +: W];
 			@(posedge clk);
 		end
 		host_we <= 1'b0;
 	endtask
 
 	task automatic read_value(input logic [1:0] region, output logic [255:0] value);
-		for (int w = 0; w < 8; w++) begin
-			host_addr <= {region, w[2:0]};
+		for (int w = 0; w < NW; w++) begin
+			host_addr <= {region, w[WB-1:0]};
 			@(posedge clk);
-			value[32*w +: 32] = host_rdata;
+			value[W*w +: W] = host_rdata;
 		end
 	endtask
 
@@ -90,7 +93,7 @@ module tb;
 	end
 
 	initial begin
-		#(6000000*CLK)
+		#(12000000*CLK)
 		$display("Too slow, abort.");
 		$finish;
 	end
