@@ -3,6 +3,7 @@ module Top(
     input locked,
     input rst,
     input data_in,
+    input start,
     output data_out,
 
     //RAM Interface
@@ -60,14 +61,46 @@ module Top(
         .ready(mem_ready)
         );
     
-
+    localparam IDLE = 2'd0, RECORD = 2'd1, PLAY = 2'd2, PAUSE = 2'd3;
+    logic [1:0] state_w, state_r;
+    logic [63:0] shift_r;
+    logic [6:0] cnt_r;
+    
     //sequential block
     always@(posedge clk or posedge rst)begin
-	if((!locked)||rst)begin
-
-	end else begin
-
-	end
+	    if((!locked)||rst)begin
+            shift_r <= 64'h0;
+            cnt_r <= 7'd0;
+            state_r <= IDLE;
+        end else begin
+            case(state_r)
+                IDLE: begin
+//todo begin        
+                    mem_addr <= 24'h0;
+                    if(start)begin
+                        state_r <= RECORD;
+                    end
+                    
+                end
+                RECORD: begin
+                    shift_r <= {shift_r[62:0], data_in};
+                    cnt_r <= cnt_r + 1;
+                    if(cnt_r == 7'd64)begin
+                        mem_d_to_ram <= shift_r[63:0];
+                        mem_addr <= mem_addr + 1;
+                        mem_wstrobe <= 1'b1;
+                        cnt_r <= 7'd0;
+                    end else begin
+                        mem_wstrobe <= 1'b0;
+                    end
+//todo stop change state
+                end
+                default: begin
+                    state_r <= STATE_IDLE;
+                end
+            endcase
+            
+        end
     end
     
 endmodule
