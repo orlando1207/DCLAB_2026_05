@@ -52,6 +52,7 @@ module ddr2_interface(
     logic mem_wdf_wren;
     logic[7:0] mem_wdf_mask;
     logic mem_wdf_rdy;
+    logic complete_r;
 
     mig_7series_0 mig1 (
         .ddr2_addr(ddr2_addr),
@@ -147,12 +148,84 @@ module ddr2_interface(
     localparam CMD_WRITE = 3'h0;
 
 
-    //TODO
-    
+    // TODO
+    logic [63:0] rd_data_r;
+    logic [2:0] state_r;
+    assign data_out = rd_data_r;
+
     always @(posedge ui_clk) begin
         if(ui_clk_sync_rst) begin
-            
+            complete_r <= 1'b0;
+            state_r <= STATE_IDLE;
+            rd_data_r <= 64'h0;
+            mem_en <= 0
+            mem_cmd <= CMD_READ;
+            mem_wdf_data <= 0;
+            mem_wdf_mask <= 8'hff;
+            mem_wdf_wren <= 0;
+            mem_wdf_end <=  0;
         end else begin
+            complete_r <= 1'b0;
+
+            case (state_r)
+                STATE_IDLE: begin
+                    if (wstrobe_sync) begin
+                        mem_wdf_wren <= 1'b0;
+                        mem_wdf_end  <= 1'b0;
+                        state_r <= STATE_WRITE;
+                        mem_en <= 1'b1;
+                        mem_cmd <= CMD_WRITE;
+                    end
+                    else if (rstrobe_sync) begin
+                        state_r <= STATE_PREREAD;
+                        mem_en <= 1'b1;
+                        mem_cmd <= CMD_READ;
+                    end
+                end
+                STATE_WRITE: begin
+                    if (mem_rdy) begin
+                        state_r <= STATE_WRITEDATA_H;
+                        mem_en  <= 1'b0;
+                    end
+                end
+                STATE_WRITEDATA_H: begin
+                    if (mem_wdf_rdy) begin
+                        mem_wdf_data <= data_in;
+                        mem_wdf_mask <= 8'h00;
+                        mem_wdf_wren <= 1'b1;
+                        state_r <= STATE_WRITEDATA_L;
+                    end
+                end
+                STATE_WRITEDATA_L: begin
+                    if (mem_wdf_rdy) begin
+                        mem_wdf_data <= data_in;
+                        mem_wdf_mask <= 8'hff;
+                        mem_wdf_wren <= 1'b1;
+                        mem_wdf_end <= 1'b1;
+                        state_r <= STATE_IDLE;
+                        complete_r <= 1'b1;
+                    end
+                end
+                STATE_PREREAD: begin
+                    if (mem_rdy) begin
+                        mem_en <= 1'b0;
+                        state_r <= STATE_READ;
+                    end
+                    if (mem_rd_data_valid && mem_rd_data_end) begin
+                        complete_r <= 1'b1;
+                        state_r <= STATE_IDLEㄤ
+                    end
+                end
+                STATE_READ: begin
+                    if (mem_rd_data_valid && mem_rd_data_end) begin
+                        rd_data_r <= mem_rd_data;
+                        state_r <= STATE_IDLE;
+                        complete_r <= 1'b1;
+                    end
+                end
+                default: 
+                    state_r <= STATE_IDLE;
+            endcase
             
         end
     end
