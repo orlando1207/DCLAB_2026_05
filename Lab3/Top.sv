@@ -22,13 +22,14 @@ module Top(
     output ddr2_odt,
     input clk_mem
     );
-    
-    logic[63:0] mem_d_from_ram;
+    localparam IDLE = 2'd0, RECORD = 2'd1, PLAY = 2'd2, PAUSE = 2'd3;
+    logic [1:0] state_w, state_r;
+    logic [63:0] mem_d_from_ram;
     logic mem_transaction_complete;
     logic mem_ready;
     
-    logic[23:0] mem_addr;
-    logic[63:0] mem_d_to_ram;
+    logic [23:0] mem_addr;
+    logic [63:0] mem_d_to_ram;
     logic mem_wstrobe, mem_rstrobe;
 
     ddr2_interface ddr2_interface0(
@@ -60,7 +61,39 @@ module Top(
         .ready(mem_ready)
         );
     
+    // player logic 
+    logic signed [3:0] speed_idx;
+    logic [26:0] cur_addr;
+    logic [63:0] cur_word;
+    logic [63:0] next_word;
+    logic [5:0] cnt; 
+    
+    always @(*) begin
+        state_w = state_r;
+        case (state_r)
+            IDLE: begin
+                cur_addr = 27'd0;
+                cur_word = 64'd0;
+                next_word = 64'd0;
+                cnt = 6'd0;
+                if (/*recording trigger*/) state_w = RECODD;
+                else if (/*playing trigger*/) steet_w = PLAY;
+            end
+            RECORD: begin
+                // TODO
+            end 
+            PLAY: begin
+                if (cnt == 6'd0) begin
+                    // read from memory
+                    
+                end
+            end
+            PAUSE: begin
 
+            end
+            default: state_w = IDLE;
+        endcase
+    end
     //sequential block
     always@(posedge clk or posedge rst)begin
 	if((!locked)||rst)begin

@@ -169,9 +169,9 @@ module ddr2_interface(
 
             case (state_r)
                 STATE_IDLE: begin
+                    mem_wdf_wren <= 1'b0;
+                    mem_wdf_end  <= 1'b0;
                     if (wstrobe_sync) begin
-                        mem_wdf_wren <= 1'b0;
-                        mem_wdf_end  <= 1'b0;
                         state_r <= STATE_WRITE;
                         mem_en <= 1'b1;
                         mem_cmd <= CMD_WRITE;
@@ -213,7 +213,7 @@ module ddr2_interface(
                     end
                     if (mem_rd_data_valid && mem_rd_data_end) begin
                         complete_r <= 1'b1;
-                        state_r <= STATE_IDLEㄤ
+                        state_r <= STATE_IDLE;
                     end
                 end
                 STATE_READ: begin
