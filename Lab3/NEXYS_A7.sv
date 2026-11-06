@@ -143,7 +143,7 @@ module NEXYS_A7(
     .ddr2_cs_n(ddr2_cs_n),
     .ddr2_dm(ddr2_dm),
     .ddr2_odt(ddr2_odt),
-    .clk_mem(CLK200MHZ),
+    .clk_mem(CLK200MHZ)
     );
 
     Seven_Segment_Display seven0(
