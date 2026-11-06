@@ -32,6 +32,7 @@ module Top(
     logic mem_ready;
     
     logic[23:0] mem_addr;
+    logic[23:0] end_addr;
     logic[63:0] mem_d_to_ram;
     logic mem_wstrobe, mem_rstrobe;
 
@@ -94,21 +95,20 @@ module Top(
             case(state_r)
                 IDLE: begin
                     mem_addr <= 24'h0;
-                    if(record_btn && !record_start && mem_ready) begin // should check if ddr2 memory is ready before sending data
+                    if (record_btn && !record_start && mem_ready) begin // should check if ddr2 memory is ready before sending data
                         record_start <= 1; // start recording
                         state_r <= RECORD;
-                    end else if (record_btn && record_start) begin
-                        record_start <= 0; // stop recording
-                        state_r <= IDLE;
                     end else if (replay_btn && !replay_start) begin
                         replay_start <= 1; 
                         state_r <= PLAY;
-                    end else if (replay_btn && replay_start) begin
-                        replay_start <= 0;
-                        state_r <= PAUSE;
                     end
                 end
                 RECORD: begin
+                    if (record_btn && record_start) begin
+                        record_start <= 0; // stop recording
+                        end_addr <= mem_addr;
+                        state_r <= IDLE;
+                    end
                     shift_r <= {shift_r[62:0], data_in};
                     cnt_r <= cnt_r + 1;
                     if(cnt_r == 7'd64) begin
@@ -120,10 +120,19 @@ module Top(
                     end
                 end
                 PLAY: begin
+                    if (replay_btn && replay_start) begin
+                        replay_start <= 0;
+                        state_r <= PAUSE;
+                    end
+
                     mem_rstrobe <= 1;
                     
                 end
                 PAUSE: begin
+                    if (replay_btn && !replay_start) begin
+                        replay_start <= 1; 
+                        state_r <= PLAY;
+                    end
                 end
                 default: begin
                     state_r <= IDLE;
