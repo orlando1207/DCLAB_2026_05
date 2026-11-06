@@ -73,7 +73,6 @@ module Top(
     logic loaded;
 
     assign data_out = (state_r == PLAY && shift_r[63]) ? 1'bz : 1'b0; 
-
     //sequential block
     always@(posedge clk or posedge rst)begin
 	    if((!locked)||rst) begin
@@ -153,9 +152,9 @@ module Top(
                             cnt_r <= 6'd0;
                         end
                     end else begin
-                        if (mem_addr == end_addr + 1) begin
+                        if (cnt_r == 6'd63) begin
                             cnt_r <= 6'd0;
-                            if (mem_addr == end_addr) begin
+                            if (mem_addr == end_addr + 1) begin
                                 replay_start <= 0;
                                 state_r <= IDLE;
                             end else begin
