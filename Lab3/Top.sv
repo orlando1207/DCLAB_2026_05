@@ -3,8 +3,11 @@ module Top(
     input locked,
     input rst,
     input data_in,
-    input start,
     output data_out,
+
+    //Record and Replay button
+    input record_btn,
+    input replay_btn,
 
     //RAM Interface
     inout[15:0] ddr2_dq,
@@ -65,38 +68,65 @@ module Top(
     logic [1:0] state_w, state_r;
     logic [63:0] shift_r;
     logic [6:0] cnt_r;
+    logic record_start, replay_start; // To indicate if recording or replaying is still running
     
     //sequential block
     always@(posedge clk or posedge rst)begin
-	    if((!locked)||rst)begin
+	    if((!locked)||rst) begin
+            // ddr2 interface param
+            mem_addr <= 24'h0;
+            mem_d_to_ram <= 64'h0;
+            mem_wstrobe <= 0;
+            mem_rstrobe <= 0;
+
+            record_start <= 0;
+            replay_start <= 0;
             shift_r <= 64'h0;
             cnt_r <= 7'd0;
             state_r <= IDLE;
         end else begin
+            mem_wstrobe <= 0;
+            mem_rstrobe <= 0;
+            if (mem_transaction_complete) begin // To check if writing to ddr2 or reading from ddr2 is done before moving to another addr
+                mem_addr <= mem_addr + 1;
+            end
+            
             case(state_r)
                 IDLE: begin
-//todo begin        
                     mem_addr <= 24'h0;
-                    if(start)begin
+                    if(record_btn && !record_start && mem_ready) begin // should check if ddr2 memory is ready before sending data
+                        record_start <= 1; // start recording
                         state_r <= RECORD;
+                    end else if (record_btn && record_start) begin
+                        record_start <= 0; // stop recording
+                        state_r <= IDLE;
+                    end else if (replay_btn && !replay_start) begin
+                        replay_start <= 1; 
+                        state_r <= PLAY;
+                    end else if (replay_btn && replay_start) begin
+                        replay_start <= 0;
+                        state_r <= PAUSE;
                     end
-                    
                 end
                 RECORD: begin
                     shift_r <= {shift_r[62:0], data_in};
                     cnt_r <= cnt_r + 1;
-                    if(cnt_r == 7'd64)begin
+                    if(cnt_r == 7'd64) begin
                         mem_d_to_ram <= shift_r[63:0];
-                        mem_addr <= mem_addr + 1;
                         mem_wstrobe <= 1'b1;
-                        cnt_r <= 7'd0;
+                        cnt_r <= 7'd1;
                     end else begin
                         mem_wstrobe <= 1'b0;
                     end
-//todo stop change state
+                end
+                PLAY: begin
+                    mem_rstrobe <= 1;
+                    
+                end
+                PAUSE: begin
                 end
                 default: begin
-                    state_r <= STATE_IDLE;
+                    state_r <= IDLE;
                 end
             endcase
             
