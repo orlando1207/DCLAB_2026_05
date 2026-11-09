@@ -196,6 +196,9 @@ module NEXYS_A7(
         .o_pos(BTNL_down)
     );
 
+    assign M_LRSEL = 1'b0;
+    assign AUD_SD  = 1'b1;
+
 endmodule
 
 
