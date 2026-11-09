@@ -210,6 +210,11 @@ module Top(
                         state_r <= PAUSE;
                     end
 
+                    if (record_btn) begin
+                        replay_start <= 0;
+                        state_r <= IDLE;
+                    end
+
                     if (!loaded && mem_transaction_complete) begin
                         next_word <= mem_d_from_ram;
                         loaded <= 1'b1;
@@ -268,6 +273,12 @@ module Top(
                         next_word <= mem_d_from_ram;
                         loaded    <= 1'b1;
                     end
+
+                    if (record_btn) begin
+                        replay_start <= 0;
+                        state_r <= IDLE;
+                    end
+
                     if (replay_btn && !replay_start) begin
                         replay_start <= 1; 
                         state_r <= PLAY;
