@@ -106,7 +106,11 @@ module NEXYS_A7(
     inout [1:0]ddr2_dqs_n
     );
 
+<<<<<<< HEAD
     logic BTNU_down,BTNR_down,BTND_down, BTNL_down, locked,CLK200MHZ;
+=======
+    logic BTNU_down,BTNR_down,BTND_down,BTNL_down,locked,CLK200MHZ;
+>>>>>>> b2a1f51d1be874c8f8cda546f5e95b75850d529f
     logic[3:0] digit0,digit1,digit2,digit3,digit4,digit5,digit6,digit7;
     
     clk_wiz_0 clk_wiz(
@@ -127,7 +131,11 @@ module NEXYS_A7(
 
     .record_btn(BTNU_down),
     .replay_btn(BTND_down),
+<<<<<<< HEAD
     .speed_up_btn(BTNR_down), 
+=======
+    .speed_up_btn(BTNR_down),
+>>>>>>> b2a1f51d1be874c8f8cda546f5e95b75850d529f
     .speed_down_btn(BTNL_down),
 
     //ddr2 Interface
@@ -189,13 +197,23 @@ module NEXYS_A7(
         .o_pos(BTND_down)
     );
 
+<<<<<<< HEAD
     Debounce deb1(
+=======
+    Debounce deb3(
+>>>>>>> b2a1f51d1be874c8f8cda546f5e95b75850d529f
         .i_in(BTNL),
         .i_clk(M_CLK),
         .i_rst(BTNC),
         .o_pos(BTNL_down)
     );
 
+<<<<<<< HEAD
+=======
+    assign M_LRSEL = 1'b0;
+    assign AUD_SD  = 1'b1;
+
+>>>>>>> b2a1f51d1be874c8f8cda546f5e95b75850d529f
 endmodule
 
 
