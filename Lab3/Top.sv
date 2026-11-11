@@ -11,6 +11,11 @@ module Top(
     input speed_up_btn, 
     input speed_down_btn,
 
+    // for bonus
+    output o_state, 
+    output o_forward, 
+    output o_step, 
+
     //RAM Interface
     inout[15:0] ddr2_dq,
     inout[1:0] ddr2_dqs_n,
@@ -94,6 +99,11 @@ module Top(
 
     wire cur_bit = forward ? out_bit_r : shift_r[63];
     assign data_out = (state_r == PLAY && cur_bit) ? 1'bz : 1'b0;
+
+    // for bonus 
+    assign o_state = state_r;
+    assign o_forward = forward;
+    assign o_step = step;
 
     always @(*) begin 
         if (speed_idx > 0) begin 

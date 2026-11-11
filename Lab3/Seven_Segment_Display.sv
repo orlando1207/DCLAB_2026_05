@@ -1,14 +1,14 @@
 module Seven_Segment_Display(
     input i_clk,
     input i_rst,
-    input [3:0] i_digit0,
-    input [3:0] i_digit1,
-    input [3:0] i_digit2,
-    input [3:0] i_digit3,
-    input [3:0] i_digit4,
-    input [3:0] i_digit5,
-    input [3:0] i_digit6,
-    input [3:0] i_digit7,
+    input [4:0] i_digit0,
+    input [4:0] i_digit1,
+    input [4:0] i_digit2,
+    input [4:0] i_digit3,
+    input [4:0] i_digit4,
+    input [4:0] i_digit5,
+    input [4:0] i_digit6,
+    input [4:0] i_digit7,
     output reg CA,
     output reg CB,
     output reg CC,
@@ -22,7 +22,7 @@ logic [6:0] seg[7:0];
 logic [7:0] an;
 logic [2:0] state_r, state_w;
 logic [9:0] counter_r, counter_w;
-logic [3:0] i_digit[0:7];
+logic [4:0] i_digit[0:7];
 
 assign i_digit[0] = i_digit0;
 assign i_digit[1] = i_digit1;

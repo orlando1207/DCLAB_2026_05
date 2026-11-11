@@ -106,12 +106,32 @@ module NEXYS_A7(
     inout [1:0]ddr2_dqs_n
     );
 
-<<<<<<< HEAD
-    logic BTNU_down,BTNR_down,BTND_down, BTNL_down, locked,CLK200MHZ;
-=======
     logic BTNU_down,BTNR_down,BTND_down,BTNL_down,locked,CLK200MHZ;
->>>>>>> b2a1f51d1be874c8f8cda546f5e95b75850d529f
-    logic[3:0] digit0,digit1,digit2,digit3,digit4,digit5,digit6,digit7;
+    logic[4:0] digit0,digit1,digit2,digit3,digit4,digit5,digit6,digit7;
+
+    // for bonus
+    logic [2:0] top_state;
+    logic top_forward;
+    logic [2:0] top_step;
+
+    localparam P = 5'd10, F = 5'd19, BLK = 5'd31;
+
+    assign DP = 1'b1;
+
+    always_comb begin
+        {digit7,digit6,digit5,digit4,digit3,digit2,digit1,digit0} = {8{BLK}};
+        case (top_state)
+            3'd0: digit0 = 5'd0;                                   
+            3'd1: {digit7,digit6,digit5,digit4,digit3,digit2,digit1,digit0} = {8{5'd1}}; 
+            3'd3: begin                                            
+                digit1 = top_forward ? F : 5'd5;                   
+                digit0 = {2'b0, top_step} + 5'd1;                  
+            end
+            3'd4: digit0 = P;                                     
+            default: ;                                             
+        endcase
+    end
+    
     
     clk_wiz_0 clk_wiz(
     .reset(BTNC),
@@ -122,7 +142,7 @@ module NEXYS_A7(
     );
     
     
-    Top(
+    Top top0(
     .clk(M_CLK),
     .locked(locked),
     .rst(BTNC),
@@ -131,12 +151,13 @@ module NEXYS_A7(
 
     .record_btn(BTNU_down),
     .replay_btn(BTND_down),
-<<<<<<< HEAD
-    .speed_up_btn(BTNR_down), 
-=======
     .speed_up_btn(BTNR_down),
->>>>>>> b2a1f51d1be874c8f8cda546f5e95b75850d529f
     .speed_down_btn(BTNL_down),
+
+    // for bonus
+    .o_state(top_state),  
+    .o_forward(top_forward),
+    .o_step(top_step),
 
     //ddr2 Interface
     .ddr2_addr(ddr2_addr),
@@ -197,23 +218,15 @@ module NEXYS_A7(
         .o_pos(BTND_down)
     );
 
-<<<<<<< HEAD
-    Debounce deb1(
-=======
     Debounce deb3(
->>>>>>> b2a1f51d1be874c8f8cda546f5e95b75850d529f
         .i_in(BTNL),
         .i_clk(M_CLK),
         .i_rst(BTNC),
         .o_pos(BTNL_down)
     );
 
-<<<<<<< HEAD
-=======
     assign M_LRSEL = 1'b0;
     assign AUD_SD  = 1'b1;
 
->>>>>>> b2a1f51d1be874c8f8cda546f5e95b75850d529f
 endmodule
-
 
