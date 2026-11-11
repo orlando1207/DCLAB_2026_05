@@ -47,7 +47,6 @@ module ddr2_interface(
     logic mem_rdy;
     wire mem_rd_data_end, mem_rd_data_valid;
     wire [63:0] mem_rd_data;
-    logic [63:0] mem_wdf_data;
     logic mem_wdf_end;
     logic mem_wdf_wren;
     logic[7:0] mem_wdf_mask;
@@ -76,7 +75,7 @@ module ddr2_interface(
 
         .app_cmd(mem_cmd),
         .app_en(mem_en),
-        .app_wdf_data(mem_wdf_data),
+        .app_wdf_data(data_in),
         .app_wdf_end(mem_wdf_end),
         .app_wdf_wren(mem_wdf_wren),
         .app_rd_data(mem_rd_data),
@@ -160,7 +159,6 @@ module ddr2_interface(
             rd_data_r <= 64'h0;
             mem_en <= 0;
             mem_cmd <= CMD_READ;
-            mem_wdf_data <= 0;
             mem_wdf_mask <= 8'hff;
             mem_wdf_wren <= 0;
             mem_wdf_end <=  0;
@@ -196,7 +194,6 @@ module ddr2_interface(
                 end
                 STATE_WRITEDATA_H: begin
                     if (mem_wdf_rdy) begin
-                        mem_wdf_data <= data_in;
                         mem_wdf_mask <= 8'h00;
                         mem_wdf_wren <= 1'b1;
                         state_r <= STATE_WRITEDATA_L;
@@ -204,7 +201,6 @@ module ddr2_interface(
                 end
                 STATE_WRITEDATA_L: begin
                     if (mem_wdf_rdy) begin
-                        mem_wdf_data <= data_in;
                         mem_wdf_mask <= 8'hff;
                         mem_wdf_wren <= 1'b1;
                         mem_wdf_end <= 1'b1;

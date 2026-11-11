@@ -118,7 +118,7 @@ module NEXYS_A7(
     );
     
     
-    Top(
+    Top Top(
     .clk(M_CLK),
     .locked(locked),
     .rst(BTNC),
@@ -168,9 +168,18 @@ module NEXYS_A7(
         .CG(CG),
         .o_an(AN)
     );
+    // shared debounce prescaler: one tick every 7813 cycles (2.5 ms @ 3.125 MHz)
+    logic [12:0] pre_cnt;
+    wire deb_tick = (pre_cnt == 13'd7812);
+    always_ff @(posedge M_CLK or posedge BTNC) begin
+        if (BTNC) pre_cnt <= 13'd0;
+        else      pre_cnt <= deb_tick ? 13'd0 : pre_cnt + 13'd1;
+    end
+
     Debounce deb0(
         .i_in(BTNU),
         .i_clk(M_CLK),
+        .i_tick(deb_tick),
         .i_rst(BTNC),
         .o_pos(BTNU_down)
     );
@@ -178,6 +187,7 @@ module NEXYS_A7(
     Debounce deb1(
         .i_in(BTNR),
         .i_clk(M_CLK),
+        .i_tick(deb_tick),
         .i_rst(BTNC),
         .o_pos(BTNR_down)
     );
@@ -185,6 +195,7 @@ module NEXYS_A7(
     Debounce deb2(
         .i_in(BTND),
         .i_clk(M_CLK),
+        .i_tick(deb_tick),
         .i_rst(BTNC),
         .o_pos(BTND_down)
     );
@@ -192,6 +203,7 @@ module NEXYS_A7(
     Debounce deb3(
         .i_in(BTNL),
         .i_clk(M_CLK),
+        .i_tick(deb_tick),
         .i_rst(BTNC),
         .o_pos(BTNL_down)
     );

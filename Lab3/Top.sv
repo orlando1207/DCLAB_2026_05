@@ -69,7 +69,8 @@ module Top(
     
     localparam IDLE = 3'd0, RECORD = 3'd1, LOAD = 3'd2, PLAY = 3'd3, PAUSE = 3'd4;
     logic [2:0] state_r;
-    logic [63:0] shift_r, next_word;
+    logic [63:0] shift_r;
+    logic [7:0] next_top; // only the top byte of the next word is needed for look-ahead
     logic [5:0] cnt_r;
     logic record_start, replay_start; // To indicate if recording or replaying is still running
     logic loaded;
@@ -82,8 +83,8 @@ module Top(
 
     wire [3:0] n = {1'b0, step} + 4'd1;
     wire [6:0]   valid_cnt = 7'd64 - {1'b0, cnt_r}; 
-    wire [127:0] stream    = {shift_r, 64'b0} | ({next_word, 64'b0} >> valid_cnt);
-    wire [7:0] top8 = stream[127:120];
+    wire [7:0] nw_top = (valid_cnt >= 7'd8) ? 8'd0 : (next_top >> valid_cnt[2:0]);
+    wire [7:0] top8 = shift_r[63:56] | nw_top;
     wire [7:0] sel  = top8 & (8'hFF << (4'd8 - n)); 
     wire [3:0] k    = {3'b0,sel[0]} + {3'b0,sel[1]} + {3'b0,sel[2]} + {3'b0,sel[3]}
                 + {3'b0,sel[4]} + {3'b0,sel[5]} + {3'b0,sel[6]} + {3'b0,sel[7]};
@@ -91,6 +92,31 @@ module Top(
     wire       out_one = (sum >= {1'b0, n});
     wire [6:0] cnt_sum = {1'b0, cnt_r} + {3'b0, n};
     wire       carry   = (cnt_sum >= 7'd64);    
+
+    // single shared shifter: every update of shift_r goes through it
+    logic use_word;
+    logic [3:0] amt;
+    always @(*) begin
+        use_word = 1'b0;
+        amt      = 4'd0;
+        case (state_r)
+            RECORD: amt = 4'd1;
+            LOAD:   use_word = 1'b1;
+            PLAY: begin
+                if (!forward) begin
+                    if (cnt_r == 6'd63) use_word = 1'b1;
+                    else                amt = 4'd1;
+                end else if (carry) begin
+                    use_word = 1'b1;
+                    amt      = {1'b0, cnt_sum[2:0]};
+                end else begin
+                    amt = n;
+                end
+            end
+            default: ;
+        endcase
+    end
+    wire [63:0] shifted = (use_word ? mem_d_from_ram : shift_r) << amt;
 
     wire cur_bit = forward ? out_bit_r : shift_r[63];
     assign data_out = (state_r == PLAY && cur_bit) ? 1'bz : 1'b0;
@@ -117,7 +143,7 @@ module Top(
             record_start <= 0;
             replay_start <= 0;
             shift_r <= 64'h0;
-            next_word <= 64'h0;
+            next_top <= 8'h0;
             cnt_r <= 6'd0;
             loaded <= 1'b0;
             end_addr <= 24'h0;
@@ -151,8 +177,6 @@ module Top(
                     */
                     mem_addr <= 24'h0;
                     cnt_r <= 6'd0;
-                    shift_r <= 64'h0;
-                    next_word <= 64'h0;
                     loaded <= 1'b0;
                     step_cnt <= 3'd0;
                     acc <= 3'd0; 
@@ -178,7 +202,7 @@ module Top(
                         end_addr <= mem_addr;
                         state_r <= IDLE;
                     end
-                    shift_r <= {shift_r[62:0], data_in};
+                    shift_r <= {shifted[63:1], data_in};
                     cnt_r <= cnt_r + 1;
                     if(cnt_r == 6'd63) begin
                         mem_d_to_ram <= {shift_r[62:0], data_in};
@@ -190,11 +214,11 @@ module Top(
                 end
                 LOAD: begin 
                     if (mem_transaction_complete && mem_addr == 24'd0) begin
-                        shift_r <= mem_d_from_ram;
+                        shift_r <= shifted;
                         mem_addr <= 24'd1;
                         mem_rstrobe <= 1'b1;
                     end else if (mem_transaction_complete && mem_addr == 24'd1) begin
-                        next_word <= mem_d_from_ram;
+                        next_top <= mem_d_from_ram[63:56];
                         mem_addr <= 24'd2;
                         loaded <= 1'b1;
                         state_r <= PLAY;
@@ -216,7 +240,7 @@ module Top(
                     end
 
                     if (!loaded && mem_transaction_complete) begin
-                        next_word <= mem_d_from_ram;
+                        next_top <= mem_d_from_ram[63:56];
                         loaded <= 1'b1;
                     end
 
@@ -226,20 +250,20 @@ module Top(
                         if (step_cnt >= step) begin
                             if (cnt_r == 6'd63) begin
                                 if (loaded) begin  
-                                    if (mem_addr >= end_addr + 24'd1) begin
+                                    if (mem_addr > end_addr) begin
                                         replay_start <= 0;
                                         state_r <= IDLE;
                                     end else begin
                                         step_cnt    <= 3'd0;
                                         cnt_r       <= 6'd0;
-                                        shift_r     <= next_word;
+                                        shift_r     <= shifted;
                                         mem_rstrobe <= 1'b1;       
                                         loaded      <= 1'b0;
                                     end
                                 end
                             end else begin
                                 step_cnt <= 3'd0;
-                                shift_r  <= {shift_r[62:0], 1'b0};
+                                shift_r  <= shifted;
                                 cnt_r    <= cnt_r + 6'd1;
                             end
                         end
@@ -252,17 +276,17 @@ module Top(
                             acc       <= out_one ? (sum - {1'b0, n}) : sum;  
 
                             if (carry) begin
-                                if (mem_addr >= end_addr + 24'd1) begin
+                                if (mem_addr > end_addr) begin
                                     replay_start <= 0;
                                     state_r      <= IDLE;
                                 end else begin
-                                    shift_r     <= next_word << (cnt_sum - 7'd64);   
-                                    cnt_r       <= cnt_sum - 7'd64;
+                                    shift_r     <= shifted;   
+                                    cnt_r       <= {3'b0, cnt_sum[2:0]};
                                     mem_rstrobe <= 1'b1;      
                                     loaded      <= 1'b0;
                                 end
                             end else begin
-                                shift_r <= shift_r << n;
+                                shift_r <= shifted;
                                 cnt_r   <= cnt_sum[5:0];
                             end
                         end
@@ -270,7 +294,7 @@ module Top(
                 end
                 PAUSE: begin
                     if (!loaded && mem_transaction_complete) begin
-                        next_word <= mem_d_from_ram;
+                        next_top <= mem_d_from_ram[63:56];
                         loaded    <= 1'b1;
                     end
 
