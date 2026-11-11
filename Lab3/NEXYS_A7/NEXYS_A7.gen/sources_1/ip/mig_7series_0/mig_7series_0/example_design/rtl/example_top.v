@@ -120,7 +120,7 @@ module example_top #
    parameter ECC                   = "OFF",
    parameter ECC_TEST              = "OFF",
    //parameter nBANK_MACHS           = 4,
-   parameter nBANK_MACHS           = 4,
+   parameter nBANK_MACHS           = 2,
    parameter RANKS                 = 1,
                                      // # of Ranks.
    parameter ROW_WIDTH             = 13,

@@ -1,3 +1,5 @@
+xpm_cdc.sv,systemverilog,xpm,D:/Xilinx/Vivado/2024.2/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv,
+xpm_VCOMP.vhd,vhdl,xpm,D:/Xilinx/Vivado/2024.2/data/ip/xpm/xpm_VCOMP.vhd,
 mig_7series_v4_2_clk_ibuf.v,verilog,xil_defaultlib,../../../../NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/clocking/mig_7series_v4_2_clk_ibuf.v,
 mig_7series_v4_2_infrastructure.v,verilog,xil_defaultlib,../../../../NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/clocking/mig_7series_v4_2_infrastructure.v,
 mig_7series_v4_2_iodelay_ctrl.v,verilog,xil_defaultlib,../../../../NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/clocking/mig_7series_v4_2_iodelay_ctrl.v,

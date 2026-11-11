@@ -8,7 +8,7 @@
   **** SW Build 5239630 on Fri Nov 08 22:35:27 MST 2024
   **** IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
   **** SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
-  **** Start of session at: Wed Nov  4 17:42:22 2026
+  **** Start of session at: Wed Nov 11 16:59:42 2026
     ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
     ** Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 
@@ -20,9 +20,9 @@ INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xc7a100
 INFO: [Device 21-403] Loading part xc7a100tcsg324-1
 INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 2 processes.
 INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
-INFO: [Synth 8-7075] Helper process launched with PID 9344
+INFO: [Synth 8-7075] Helper process launched with PID 12044
 ---------------------------------------------------------------------------------
-Starting RTL Elaboration : Time (s): cpu = 00:00:04 ; elapsed = 00:00:05 . Memory (MB): peak = 1078.219 ; gain = 467.355
+Starting RTL Elaboration : Time (s): cpu = 00:00:03 ; elapsed = 00:00:03 . Memory (MB): peak = 1078.852 ; gain = 469.488
 ---------------------------------------------------------------------------------
 WARNING: [Synth 8-10515] begin/end is required for generate-for in this mode of Verilog [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_arb_row_col.v:253]
 INFO: [Synth 8-11241] undeclared symbol 'dbg_sel_po_incdec', assumed default net type 'wire' [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/mig_7series_0_mig.v:1019]
@@ -154,7 +154,7 @@ INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_memc_ui_top_std' [c:/
 	Parameter ADDR_CMD_MODE bound to: 1T - type: string 
 	Parameter AL bound to: 0 - type: string 
 	Parameter BANK_WIDTH bound to: 3 - type: integer 
-	Parameter BM_CNT_WIDTH bound to: 2 - type: integer 
+	Parameter BM_CNT_WIDTH bound to: 1 - type: integer 
 	Parameter BURST_MODE bound to: 8 - type: string 
 	Parameter BURST_TYPE bound to: SEQ - type: string 
 	Parameter CK_WIDTH bound to: 1 - type: integer 
@@ -178,7 +178,7 @@ INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_memc_ui_top_std' [c:/
 	Parameter MC_ERR_ADDR_WIDTH bound to: 27 - type: integer 
 	Parameter MASTER_PHY_CTL bound to: 0 - type: integer 
 	Parameter nAL bound to: 0 - type: integer 
-	Parameter nBANK_MACHS bound to: 4 - type: integer 
+	Parameter nBANK_MACHS bound to: 2 - type: integer 
 	Parameter nCK_PER_CLK bound to: 2 - type: integer 
 	Parameter nCS_PER_RANK bound to: 1 - type: integer 
 	Parameter ORDERING bound to: STRICT - type: string 
@@ -311,18 +311,6 @@ INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_bank_state__para
 INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_bank_queue__parameterized0' [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_bank_queue.v:174]
 INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_bank_queue__parameterized0' (0#1) [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_bank_queue.v:174]
 INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_bank_cntrl__parameterized0' (0#1) [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_bank_cntrl.v:70]
-INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_bank_cntrl__parameterized1' [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_bank_cntrl.v:70]
-INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_bank_state__parameterized1' [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_bank_state.v:141]
-INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_bank_state__parameterized1' (0#1) [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_bank_state.v:141]
-INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_bank_queue__parameterized1' [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_bank_queue.v:174]
-INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_bank_queue__parameterized1' (0#1) [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_bank_queue.v:174]
-INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_bank_cntrl__parameterized1' (0#1) [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_bank_cntrl.v:70]
-INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_bank_cntrl__parameterized2' [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_bank_cntrl.v:70]
-INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_bank_state__parameterized2' [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_bank_state.v:141]
-INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_bank_state__parameterized2' (0#1) [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_bank_state.v:141]
-INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_bank_queue__parameterized2' [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_bank_queue.v:174]
-INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_bank_queue__parameterized2' (0#1) [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_bank_queue.v:174]
-INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_bank_cntrl__parameterized2' (0#1) [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_bank_cntrl.v:70]
 INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_bank_common' [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_bank_common.v:73]
 INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_bank_common' (0#1) [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_bank_common.v:73]
 INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_arb_mux' [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_arb_mux.v:69]
@@ -475,8 +463,8 @@ WARNING: [Synth 8-3936] Found unconnected internal register 'dbl_last_master_ns_
 WARNING: [Synth 8-6014] Unused sequential element last_master_r_reg was removed.  [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_round_robin_arb.v:181]
 WARNING: [Synth 8-3848] Net channel[0].inh_group in module/entity mig_7series_v4_2_round_robin_arb__parameterized0 does not have driver. [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_round_robin_arb.v:153]
 WARNING: [Synth 8-3936] Found unconnected internal register 'col_addr_template_reg' and it is trimmed from '16' to '13' bits. [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_bank_compare.v:251]
-WARNING: [Synth 8-3936] Found unconnected internal register 'dbl_req_reg' and it is trimmed from '8' to '7' bits. [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_round_robin_arb.v:145]
-WARNING: [Synth 8-3936] Found unconnected internal register 'dbl_last_master_ns_reg' and it is trimmed from '8' to '6' bits. [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_round_robin_arb.v:143]
+WARNING: [Synth 8-3936] Found unconnected internal register 'dbl_req_reg' and it is trimmed from '4' to '3' bits. [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_round_robin_arb.v:145]
+WARNING: [Synth 8-3936] Found unconnected internal register 'dbl_last_master_ns_reg' and it is trimmed from '4' to '2' bits. [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_round_robin_arb.v:143]
 WARNING: [Synth 8-6014] Unused sequential element sent_row_or_maint_r_reg was removed.  [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_arb_row_col.v:357]
 WARNING: [Synth 8-3848] Net grant_pre_r in module/entity mig_7series_v4_2_arb_row_col does not have driver. [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_arb_row_col.v:186]
 WARNING: [Synth 8-3848] Net sending_pre in module/entity mig_7series_v4_2_arb_row_col does not have driver. [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/controller/mig_7series_v4_2_arb_row_col.v:187]
@@ -727,18 +715,18 @@ WARNING: [Synth 8-7129] Port dbg_phy_init[206] in module mig_7series_v4_2_ddr_ph
 WARNING: [Synth 8-7129] Port dbg_phy_init[205] in module mig_7series_v4_2_ddr_phy_init is either unconnected or has no load
 INFO: [Common 17-14] Message 'Synth 8-7129' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
 ---------------------------------------------------------------------------------
-Finished RTL Elaboration : Time (s): cpu = 00:00:13 ; elapsed = 00:00:15 . Memory (MB): peak = 1357.027 ; gain = 746.164
+Finished RTL Elaboration : Time (s): cpu = 00:00:06 ; elapsed = 00:00:07 . Memory (MB): peak = 1346.219 ; gain = 736.855
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Handling Custom Attributes
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Handling Custom Attributes : Time (s): cpu = 00:00:14 ; elapsed = 00:00:16 . Memory (MB): peak = 1357.027 ; gain = 746.164
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:06 ; elapsed = 00:00:08 . Memory (MB): peak = 1346.219 ; gain = 736.855
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:14 ; elapsed = 00:00:16 . Memory (MB): peak = 1357.027 ; gain = 746.164
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:06 ; elapsed = 00:00:08 . Memory (MB): peak = 1346.219 ; gain = 736.855
 ---------------------------------------------------------------------------------
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.328 . Memory (MB): peak = 1357.027 ; gain = 0.000
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.132 . Memory (MB): peak = 1346.219 ; gain = 0.000
 INFO: [Netlist 29-17] Analyzing 75 Unisim elements for replacement
 INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
 INFO: [Project 1-570] Preparing netlist for logic optimization
@@ -756,24 +744,24 @@ Resolution: To avoid this warning, move constraints listed in [.Xil/mig_7series_
 INFO: [Timing 38-2] Deriving generated clocks
 Completed Processing XDC Constraints
 
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.006 . Memory (MB): peak = 1428.219 ; gain = 0.000
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.001 . Memory (MB): peak = 1419.824 ; gain = 0.000
 INFO: [Project 1-111] Unisim Transformation Summary:
   A total of 34 instances were transformed.
   IOBUFDS_INTERMDISABLE => IOBUFDS_INTERMDISABLE (IBUFDS_INTERMDISABLE_INT(x2), INV, OBUFTDS(x2)): 2 instances
   IOBUF_INTERMDISABLE => IOBUF_INTERMDISABLE (IBUF_INTERMDISABLE, OBUFT): 16 instances
   RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 16 instances
 
-Constraint Validation Runtime : Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.175 . Memory (MB): peak = 1428.488 ; gain = 0.270
+Constraint Validation Runtime : Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.057 . Memory (MB): peak = 1420.484 ; gain = 0.660
 INFO: [Designutils 20-5008] Incremental synthesis strategy off
 ---------------------------------------------------------------------------------
-Finished Constraint Validation : Time (s): cpu = 00:00:29 ; elapsed = 00:00:34 . Memory (MB): peak = 1428.488 ; gain = 817.625
+Finished Constraint Validation : Time (s): cpu = 00:00:16 ; elapsed = 00:00:18 . Memory (MB): peak = 1420.484 ; gain = 811.121
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Loading Part and Timing Information
 ---------------------------------------------------------------------------------
 Loading part: xc7a100tcsg324-1
 ---------------------------------------------------------------------------------
-Finished Loading Part and Timing Information : Time (s): cpu = 00:00:29 ; elapsed = 00:00:34 . Memory (MB): peak = 1428.488 ; gain = 817.625
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:16 ; elapsed = 00:00:18 . Memory (MB): peak = 1420.484 ; gain = 811.121
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Applying 'set_property' XDC Constraints
@@ -781,7 +769,7 @@ Start Applying 'set_property' XDC Constraints
 Applied set_property IO_BUFFER_TYPE = NONE for ddr2_ck_n[0]. (constraint file  c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/constraints/mig_7series_0.xdc, line 27).
 Applied set_property IO_BUFFER_TYPE = NONE for ddr2_ck_p[0]. (constraint file  c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/constraints/mig_7series_0.xdc, line 28).
 ---------------------------------------------------------------------------------
-Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:30 ; elapsed = 00:00:34 . Memory (MB): peak = 1428.488 ; gain = 817.625
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:16 ; elapsed = 00:00:18 . Memory (MB): peak = 1420.484 ; gain = 811.121
 ---------------------------------------------------------------------------------
 INFO: [Synth 8-802] inferred FSM for state register 'xadc_supplied_temperature.tempmon_state_reg' in module 'mig_7series_v4_2_tempmon'
 INFO: [Synth 8-802] inferred FSM for state register 'fine_adj_state_r_reg' in module 'mig_7series_v4_2_ddr_phy_dqs_found_cal_hr'
@@ -931,7 +919,7 @@ INFO: [Synth 8-3354] encoded FSM with state register 'cal2_state_r_reg' using en
 ---------------------------------------------------------------------------------------------------
 INFO: [Synth 8-3898] No Re-encoding of one hot register 'tempmon_state_reg' in module 'mig_7series_v4_2_ddr_phy_tempmon'
 ---------------------------------------------------------------------------------
-Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:39 ; elapsed = 00:00:44 . Memory (MB): peak = 1428.488 ; gain = 817.625
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:25 ; elapsed = 00:00:28 . Memory (MB): peak = 1420.484 ; gain = 811.121
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start RTL Component Statistics 
@@ -950,15 +938,12 @@ Detailed RTL Component Info :
 	   3 Input    6 Bit       Adders := 3     
 	   2 Input    5 Bit       Adders := 34    
 	   2 Input    4 Bit       Adders := 25    
-	   2 Input    3 Bit       Adders := 21    
+	   2 Input    3 Bit       Adders := 15    
 	   3 Input    3 Bit       Adders := 1     
-	   2 Input    2 Bit       Adders := 43    
-	   3 Input    2 Bit       Adders := 3     
-	   4 Input    2 Bit       Adders := 5     
-	   5 Input    2 Bit       Adders := 1     
+	   2 Input    2 Bit       Adders := 22    
 	   8 Input    2 Bit       Adders := 1     
-	   2 Input    1 Bit       Adders := 6     
-	   3 Input    1 Bit       Adders := 1     
+	   2 Input    1 Bit       Adders := 17    
+	   3 Input    1 Bit       Adders := 2     
 	   4 Input    1 Bit       Adders := 1     
 	   5 Input    1 Bit       Adders := 1     
 	   6 Input    1 Bit       Adders := 1     
@@ -976,21 +961,21 @@ Detailed RTL Component Info :
 	               30 Bit    Registers := 1     
 	               27 Bit    Registers := 2     
 	               26 Bit    Registers := 1     
-	               16 Bit    Registers := 10    
+	               16 Bit    Registers := 8     
 	               15 Bit    Registers := 4     
-	               13 Bit    Registers := 7     
+	               13 Bit    Registers := 5     
 	               12 Bit    Registers := 31    
 	               11 Bit    Registers := 1     
 	               10 Bit    Registers := 2     
 	                9 Bit    Registers := 12    
-	                8 Bit    Registers := 10    
+	                8 Bit    Registers := 6     
 	                7 Bit    Registers := 3     
 	                6 Bit    Registers := 41    
 	                5 Bit    Registers := 33    
-	                4 Bit    Registers := 65    
-	                3 Bit    Registers := 41    
-	                2 Bit    Registers := 157   
-	                1 Bit    Registers := 1093  
+	                4 Bit    Registers := 58    
+	                3 Bit    Registers := 31    
+	                2 Bit    Registers := 154   
+	                1 Bit    Registers := 1025  
 +---Muxes : 
 	   2 Input   80 Bit        Muxes := 6     
 	   2 Input   64 Bit        Muxes := 5     
@@ -1001,9 +986,9 @@ Detailed RTL Component Info :
 	   2 Input   30 Bit        Muxes := 12    
 	   4 Input   30 Bit        Muxes := 4     
 	   2 Input   26 Bit        Muxes := 1     
-	   2 Input   20 Bit        Muxes := 4     
+	   2 Input   20 Bit        Muxes := 6     
 	   3 Input   16 Bit        Muxes := 1     
-	   2 Input   13 Bit        Muxes := 7     
+	   2 Input   13 Bit        Muxes := 9     
 	   3 Input   13 Bit        Muxes := 1     
 	   2 Input   12 Bit        Muxes := 6     
 	   4 Input   12 Bit        Muxes := 1     
@@ -1027,23 +1012,23 @@ Detailed RTL Component Info :
 	  24 Input    5 Bit        Muxes := 1     
 	   4 Input    5 Bit        Muxes := 1     
 	   3 Input    5 Bit        Muxes := 1     
-	   2 Input    4 Bit        Muxes := 46    
+	   2 Input    4 Bit        Muxes := 26    
 	  32 Input    4 Bit        Muxes := 1     
 	   9 Input    4 Bit        Muxes := 1     
 	  23 Input    4 Bit        Muxes := 1     
-	   2 Input    3 Bit        Muxes := 76    
-	   4 Input    3 Bit        Muxes := 6     
-	   2 Input    2 Bit        Muxes := 55    
+	   2 Input    3 Bit        Muxes := 48    
+	   4 Input    3 Bit        Muxes := 2     
+	   2 Input    2 Bit        Muxes := 51    
 	   8 Input    2 Bit        Muxes := 4     
 	   3 Input    2 Bit        Muxes := 2     
 	  24 Input    2 Bit        Muxes := 2     
 	   6 Input    2 Bit        Muxes := 1     
 	   4 Input    2 Bit        Muxes := 3     
 	   9 Input    2 Bit        Muxes := 1     
-	   2 Input    1 Bit        Muxes := 560   
+	   4 Input    1 Bit        Muxes := 172   
+	   2 Input    1 Bit        Muxes := 546   
 	   3 Input    1 Bit        Muxes := 10    
 	   8 Input    1 Bit        Muxes := 4     
-	   4 Input    1 Bit        Muxes := 172   
 	   5 Input    1 Bit        Muxes := 1     
 	  16 Input    1 Bit        Muxes := 21    
 	  24 Input    1 Bit        Muxes := 30    
@@ -1072,7 +1057,7 @@ WARNING: [Synth 8-3936] Found unconnected internal register 'wrcal_start_dly_r_r
 WARNING: [Synth 8-3332] Sequential element (FSM_onehot_cal1_state_r_reg[25]) is unused and will be removed from module mig_7series_v4_2_ddr_phy_rdlvl.
 WARNING: [Synth 8-3332] Sequential element (FSM_sequential_init_state_r_reg[6]) is unused and will be removed from module mig_7series_v4_2_ddr_phy_init.
 ---------------------------------------------------------------------------------
-Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:01:39 ; elapsed = 00:01:48 . Memory (MB): peak = 1543.969 ; gain = 933.105
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:54 ; elapsed = 00:00:59 . Memory (MB): peak = 1420.484 ; gain = 811.121
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start ROM, RAM, DSP, Shift Register and Retiming Reporting
@@ -1088,16 +1073,16 @@ ROM: Preliminary Mapping Report
 
 
 Distributed RAM: Preliminary Mapping Report (see note below)
-+--------------+---------------------------------------------------------------------------------------+-----------+----------------------+--------------+
-|Module Name   | RTL Object                                                                            | Inference | Size (Depth x Width) | Primitives   | 
-+--------------+---------------------------------------------------------------------------------------+-----------+----------------------+--------------+
-|mig_7series_0 | of_pre_fifo_gen.u_ddr_of_pre_fifo/mem_reg                                             | Implied   | 16 x 80              | RAM32M x 14  | 
-|mig_7series_0 | ddr_byte_lane_A.ddr_byte_lane_A/dq_gen_40.if_post_fifo_gen.u_ddr_if_post_fifo/mem_reg | Implied   | 4 x 80               | RAM32M x 14  | 
-|mig_7series_0 | ddr_byte_lane_A.ddr_byte_lane_A/of_pre_fifo_gen.u_ddr_of_pre_fifo/mem_reg             | Implied   | 16 x 80              | RAM32M x 14  | 
-|mig_7series_0 | ddr_byte_lane_B.ddr_byte_lane_B/of_pre_fifo_gen.u_ddr_of_pre_fifo/mem_reg             | Implied   | 16 x 80              | RAM32M x 14  | 
-|mig_7series_0 | ddr_byte_lane_C.ddr_byte_lane_C/dq_gen_40.if_post_fifo_gen.u_ddr_if_post_fifo/mem_reg | Implied   | 4 x 80               | RAM32M x 14  | 
-|mig_7series_0 | ddr_byte_lane_C.ddr_byte_lane_C/of_pre_fifo_gen.u_ddr_of_pre_fifo/mem_reg             | Implied   | 16 x 80              | RAM32M x 14  | 
-+--------------+---------------------------------------------------------------------------------------+-----------+----------------------+--------------+
++--------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------+-----------+----------------------+--------------+
+|Module Name                                                                                       | RTL Object                                                                                                              | Inference | Size (Depth x Width) | Primitives   | 
++--------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------+-----------+----------------------+--------------+
+|\u_mig_7series_0_mig/u_memc_ui_top_std/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper /u_ddr_mc_phy | ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/dq_gen_40.if_post_fifo_gen.u_ddr_if_post_fifo/mem_reg | Implied   | 4 x 80               | RAM32M x 14  | 
+|\u_mig_7series_0_mig/u_memc_ui_top_std/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper /u_ddr_mc_phy | ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/of_pre_fifo_gen.u_ddr_of_pre_fifo/mem_reg             | Implied   | 16 x 80              | RAM32M x 14  | 
+|\u_mig_7series_0_mig/u_memc_ui_top_std/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper /u_ddr_mc_phy | ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_B.ddr_byte_lane_B/of_pre_fifo_gen.u_ddr_of_pre_fifo/mem_reg             | Implied   | 16 x 80              | RAM32M x 14  | 
+|\u_mig_7series_0_mig/u_memc_ui_top_std/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper /u_ddr_mc_phy | ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/dq_gen_40.if_post_fifo_gen.u_ddr_if_post_fifo/mem_reg | Implied   | 4 x 80               | RAM32M x 14  | 
+|\u_mig_7series_0_mig/u_memc_ui_top_std/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper /u_ddr_mc_phy | ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/of_pre_fifo_gen.u_ddr_of_pre_fifo/mem_reg             | Implied   | 16 x 80              | RAM32M x 14  | 
+|\u_mig_7series_0_mig/u_memc_ui_top_std/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper /u_ddr_mc_phy | ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_D.ddr_byte_lane_D/of_pre_fifo_gen.u_ddr_of_pre_fifo/mem_reg             | Implied   | 16 x 80              | RAM32M x 14  | 
++--------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------+-----------+----------------------+--------------+
 
 Note: The table above is a preliminary report that shows the Distributed RAMs at the current stage of the synthesis flow. Some Distributed RAMs may be reimplemented as non Distributed RAM primitives later in the synthesis flow. Multiple instantiated RAMs are reported only once.
 ---------------------------------------------------------------------------------
@@ -1106,31 +1091,30 @@ Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
 ---------------------------------------------------------------------------------
 Start Applying XDC Timing Constraints
 ---------------------------------------------------------------------------------
-WARNING: [Synth 8-3321] set_false_path : Empty through list for constraint at line 347 of c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/constraints/mig_7series_0.xdc. [c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/constraints/mig_7series_0.xdc:347]
 ---------------------------------------------------------------------------------
-Finished Applying XDC Timing Constraints : Time (s): cpu = 00:01:50 ; elapsed = 00:01:59 . Memory (MB): peak = 1543.969 ; gain = 933.105
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:01:03 ; elapsed = 00:01:09 . Memory (MB): peak = 1482.301 ; gain = 872.938
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Timing Optimization
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Timing Optimization : Time (s): cpu = 00:01:51 ; elapsed = 00:02:00 . Memory (MB): peak = 1543.969 ; gain = 933.105
+Finished Timing Optimization : Time (s): cpu = 00:01:04 ; elapsed = 00:01:10 . Memory (MB): peak = 1494.598 ; gain = 885.234
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start ROM, RAM, DSP, Shift Register and Retiming Reporting
 ---------------------------------------------------------------------------------
 
 Distributed RAM: Final Mapping Report
-+--------------+---------------------------------------------------------------------------------------+-----------+----------------------+--------------+
-|Module Name   | RTL Object                                                                            | Inference | Size (Depth x Width) | Primitives   | 
-+--------------+---------------------------------------------------------------------------------------+-----------+----------------------+--------------+
-|mig_7series_0 | of_pre_fifo_gen.u_ddr_of_pre_fifo/mem_reg                                             | Implied   | 16 x 80              | RAM32M x 14  | 
-|mig_7series_0 | ddr_byte_lane_A.ddr_byte_lane_A/dq_gen_40.if_post_fifo_gen.u_ddr_if_post_fifo/mem_reg | Implied   | 4 x 80               | RAM32M x 14  | 
-|mig_7series_0 | ddr_byte_lane_A.ddr_byte_lane_A/of_pre_fifo_gen.u_ddr_of_pre_fifo/mem_reg             | Implied   | 16 x 80              | RAM32M x 14  | 
-|mig_7series_0 | ddr_byte_lane_B.ddr_byte_lane_B/of_pre_fifo_gen.u_ddr_of_pre_fifo/mem_reg             | Implied   | 16 x 80              | RAM32M x 14  | 
-|mig_7series_0 | ddr_byte_lane_C.ddr_byte_lane_C/dq_gen_40.if_post_fifo_gen.u_ddr_if_post_fifo/mem_reg | Implied   | 4 x 80               | RAM32M x 14  | 
-|mig_7series_0 | ddr_byte_lane_C.ddr_byte_lane_C/of_pre_fifo_gen.u_ddr_of_pre_fifo/mem_reg             | Implied   | 16 x 80              | RAM32M x 14  | 
-+--------------+---------------------------------------------------------------------------------------+-----------+----------------------+--------------+
++--------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------+-----------+----------------------+--------------+
+|Module Name                                                                                       | RTL Object                                                                                                              | Inference | Size (Depth x Width) | Primitives   | 
++--------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------+-----------+----------------------+--------------+
+|\u_mig_7series_0_mig/u_memc_ui_top_std/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper /u_ddr_mc_phy | ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/dq_gen_40.if_post_fifo_gen.u_ddr_if_post_fifo/mem_reg | Implied   | 4 x 80               | RAM32M x 14  | 
+|\u_mig_7series_0_mig/u_memc_ui_top_std/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper /u_ddr_mc_phy | ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/of_pre_fifo_gen.u_ddr_of_pre_fifo/mem_reg             | Implied   | 16 x 80              | RAM32M x 14  | 
+|\u_mig_7series_0_mig/u_memc_ui_top_std/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper /u_ddr_mc_phy | ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_B.ddr_byte_lane_B/of_pre_fifo_gen.u_ddr_of_pre_fifo/mem_reg             | Implied   | 16 x 80              | RAM32M x 14  | 
+|\u_mig_7series_0_mig/u_memc_ui_top_std/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper /u_ddr_mc_phy | ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/dq_gen_40.if_post_fifo_gen.u_ddr_if_post_fifo/mem_reg | Implied   | 4 x 80               | RAM32M x 14  | 
+|\u_mig_7series_0_mig/u_memc_ui_top_std/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper /u_ddr_mc_phy | ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/of_pre_fifo_gen.u_ddr_of_pre_fifo/mem_reg             | Implied   | 16 x 80              | RAM32M x 14  | 
+|\u_mig_7series_0_mig/u_memc_ui_top_std/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper /u_ddr_mc_phy | ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_D.ddr_byte_lane_D/of_pre_fifo_gen.u_ddr_of_pre_fifo/mem_reg             | Implied   | 16 x 80              | RAM32M x 14  | 
++--------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------+-----------+----------------------+--------------+
 
 ---------------------------------------------------------------------------------
 Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
@@ -1139,7 +1123,7 @@ Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
 Start Technology Mapping
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Technology Mapping : Time (s): cpu = 00:01:54 ; elapsed = 00:02:05 . Memory (MB): peak = 1544.434 ; gain = 933.570
+Finished Technology Mapping : Time (s): cpu = 00:01:07 ; elapsed = 00:01:13 . Memory (MB): peak = 1533.742 ; gain = 924.379
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start IO Insertion
@@ -1157,37 +1141,37 @@ Start Final Netlist Cleanup
 Finished Final Netlist Cleanup
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished IO Insertion : Time (s): cpu = 00:02:00 ; elapsed = 00:02:11 . Memory (MB): peak = 1711.672 ; gain = 1100.809
+Finished IO Insertion : Time (s): cpu = 00:01:13 ; elapsed = 00:01:19 . Memory (MB): peak = 1706.898 ; gain = 1097.535
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Renaming Generated Instances
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Renaming Generated Instances : Time (s): cpu = 00:02:00 ; elapsed = 00:02:11 . Memory (MB): peak = 1711.672 ; gain = 1100.809
+Finished Renaming Generated Instances : Time (s): cpu = 00:01:13 ; elapsed = 00:01:19 . Memory (MB): peak = 1706.898 ; gain = 1097.535
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Rebuilding User Hierarchy
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Rebuilding User Hierarchy : Time (s): cpu = 00:02:02 ; elapsed = 00:02:12 . Memory (MB): peak = 1711.672 ; gain = 1100.809
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:01:14 ; elapsed = 00:01:20 . Memory (MB): peak = 1706.898 ; gain = 1097.535
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Renaming Generated Ports
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Renaming Generated Ports : Time (s): cpu = 00:02:02 ; elapsed = 00:02:12 . Memory (MB): peak = 1711.672 ; gain = 1100.809
+Finished Renaming Generated Ports : Time (s): cpu = 00:01:14 ; elapsed = 00:01:20 . Memory (MB): peak = 1706.898 ; gain = 1097.535
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Handling Custom Attributes
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Handling Custom Attributes : Time (s): cpu = 00:02:02 ; elapsed = 00:02:13 . Memory (MB): peak = 1711.672 ; gain = 1100.809
+Finished Handling Custom Attributes : Time (s): cpu = 00:01:14 ; elapsed = 00:01:21 . Memory (MB): peak = 1706.898 ; gain = 1097.535
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Renaming Generated Nets
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Renaming Generated Nets : Time (s): cpu = 00:02:02 ; elapsed = 00:02:13 . Memory (MB): peak = 1711.672 ; gain = 1100.809
+Finished Renaming Generated Nets : Time (s): cpu = 00:01:14 ; elapsed = 00:01:21 . Memory (MB): peak = 1706.898 ; gain = 1097.535
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start ROM, RAM, DSP, Shift Register and Retiming Reporting
@@ -1198,7 +1182,7 @@ Static Shift Register Report:
 |Module Name   | RTL Name                                                                                                                                                                                       | Length | Width | Reset Signal | Pull out first Reg | Pull out last Reg | SRL16E | SRLC32E | 
 +--------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------+-------+--------------+--------------------+-------------------+--------+---------+
 |mig_7series_0 | u_mig_7series_0_mig/u_memc_ui_top_std/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/rclk_delay_reg[11]                                           | 12     | 1     | NO           | NO                 | YES               | 1      | 0       | 
-|mig_7series_0 | u_mig_7series_0_mig/u_memc_ui_top_std/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/ddr_byte_group_io/rst_r4_reg | 4      | 1     | NO           | NO                 | YES               | 1      | 0       | 
+|mig_7series_0 | u_mig_7series_0_mig/u_memc_ui_top_std/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/ddr_byte_group_io/rst_r4_reg | 4      | 1     | NO           | NO                 | YES               | 1      | 0       | 
 |mig_7series_0 | u_mig_7series_0_mig/u_memc_ui_top_std/mem_intfc0/ddr_phy_top0/u_ddr_calib_top/mb_wrlvl_off.u_phy_wrlvl_off_delay/cmd_delay_start_r6_reg                                                        | 6      | 1     | NO           | NO                 | YES               | 1      | 0       | 
 |mig_7series_0 | u_mig_7series_0_mig/u_memc_ui_top_std/mem_intfc0/ddr_phy_top0/u_ddr_calib_top/mb_wrlvl_off.u_phy_wrlvl_off_delay/delay_done_r4_reg                                                             | 4      | 1     | NO           | NO                 | YES               | 1      | 0       | 
 |mig_7series_0 | u_mig_7series_0_mig/u_memc_ui_top_std/mem_intfc0/ddr_phy_top0/u_ddr_calib_top/mb_wrlvl_off.u_phy_wrlvl_off_delay/po_delay_done_r4_reg                                                          | 4      | 1     | NO           | NO                 | YES               | 1      | 0       | 
@@ -1229,17 +1213,17 @@ Report Cell Usage:
 |1     |BUFG                  |     3|
 |2     |BUFH                  |     1|
 |3     |BUFIO                 |     1|
-|4     |CARRY4                |   101|
+|4     |CARRY4                |    97|
 |5     |IDELAYCTRL            |     1|
 |6     |IDELAYE2              |    16|
 |7     |IN_FIFO               |     2|
 |8     |ISERDESE2             |    16|
-|9     |LUT1                  |   242|
-|10    |LUT2                  |   328|
-|11    |LUT3                  |   530|
-|12    |LUT4                  |   622|
-|13    |LUT5                  |   763|
-|14    |LUT6                  |   901|
+|9     |LUT1                  |   236|
+|10    |LUT2                  |   357|
+|11    |LUT3                  |   547|
+|12    |LUT4                  |   583|
+|13    |LUT5                  |   693|
+|14    |LUT6                  |   732|
 |15    |MMCME2_ADV            |     1|
 |16    |MUXF7                 |     2|
 |17    |ODDR                  |     5|
@@ -1255,9 +1239,9 @@ Report Cell Usage:
 |30    |SRLC32E               |     1|
 |31    |XADC                  |     1|
 |32    |FDCE                  |     1|
-|33    |FDPE                  |    70|
-|34    |FDRE                  |  2621|
-|35    |FDSE                  |    59|
+|33    |FDPE                  |    69|
+|34    |FDRE                  |  2447|
+|35    |FDSE                  |    68|
 |36    |IOBUFDS_INTERMDISABLE |     2|
 |37    |IOBUF_INTERMDISABLE   |    16|
 |38    |OBUF                  |    22|
@@ -1265,18 +1249,18 @@ Report Cell Usage:
 |40    |OBUFT                 |     2|
 +------+----------------------+------+
 ---------------------------------------------------------------------------------
-Finished Writing Synthesis Report : Time (s): cpu = 00:02:02 ; elapsed = 00:02:13 . Memory (MB): peak = 1711.672 ; gain = 1100.809
+Finished Writing Synthesis Report : Time (s): cpu = 00:01:14 ; elapsed = 00:01:21 . Memory (MB): peak = 1706.898 ; gain = 1097.535
 ---------------------------------------------------------------------------------
-Synthesis finished with 0 errors, 0 critical warnings and 7 warnings.
-Synthesis Optimization Runtime : Time (s): cpu = 00:01:43 ; elapsed = 00:02:05 . Memory (MB): peak = 1711.672 ; gain = 1029.348
-Synthesis Optimization Complete : Time (s): cpu = 00:02:03 ; elapsed = 00:02:13 . Memory (MB): peak = 1711.672 ; gain = 1100.809
+Synthesis finished with 0 errors, 0 critical warnings and 2375 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:01:06 ; elapsed = 00:01:18 . Memory (MB): peak = 1706.898 ; gain = 1023.270
+Synthesis Optimization Complete : Time (s): cpu = 00:01:15 ; elapsed = 00:01:21 . Memory (MB): peak = 1706.898 ; gain = 1097.535
 INFO: [Project 1-571] Translating synthesized netlist
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.162 . Memory (MB): peak = 1711.672 ; gain = 0.000
-INFO: [Netlist 29-17] Analyzing 226 Unisim elements for replacement
+Netlist sorting complete. Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.107 . Memory (MB): peak = 1706.898 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 222 Unisim elements for replacement
 INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
 INFO: [Project 1-570] Preparing netlist for logic optimization
 INFO: [Opt 31-138] Pushed 2 inverter(s) to 16 load pin(s).
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.003 . Memory (MB): peak = 1734.508 ; gain = 0.000
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.001 . Memory (MB): peak = 1726.469 ; gain = 0.000
 INFO: [Project 1-111] Unisim Transformation Summary:
   A total of 83 instances were transformed.
   IOBUFDS_INTERMDISABLE => IOBUFDS_INTERMDISABLE (IBUFDS_INTERMDISABLE_INT(x2), INV, OBUFTDS(x2)): 2 instances
@@ -1284,13 +1268,13 @@ INFO: [Project 1-111] Unisim Transformation Summary:
   OBUFDS => OBUFDS_DUAL_BUF (INV, OBUFDS(x2)): 1 instance 
   RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 64 instances
 
-Synth Design complete | Checksum: 4373892d
+Synth Design complete | Checksum: 8e881089
 INFO: [Common 17-83] Releasing license: Synthesis
-222 Infos, 292 Warnings, 0 Critical Warnings and 0 Errors encountered.
+210 Infos, 291 Warnings, 0 Critical Warnings and 0 Errors encountered.
 synth_design completed successfully
-synth_design: Time (s): cpu = 00:02:08 ; elapsed = 00:02:20 . Memory (MB): peak = 1734.508 ; gain = 1323.344
-INFO: [Coretcl 2-1174] Renamed 68 cell refs.
-Write ShapeDB Complete: Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.014 . Memory (MB): peak = 1734.508 ; gain = 0.000
+synth_design: Time (s): cpu = 00:01:20 ; elapsed = 00:01:28 . Memory (MB): peak = 1726.469 ; gain = 1313.199
+INFO: [Coretcl 2-1174] Renamed 60 cell refs.
+Write ShapeDB Complete: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.019 . Memory (MB): peak = 1726.469 ; gain = 0.000
 INFO: [Common 17-1381] The checkpoint 'C:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.runs/mig_7series_0_synth_1/mig_7series_0.dcp' has been generated.
 INFO: [Vivado 12-24828] Executing command : report_utilization -file mig_7series_0_utilization_synth.rpt -pb mig_7series_0_utilization_synth.pb
-INFO: [Common 17-206] Exiting Vivado at Wed Nov  4 17:44:48 2026...
+INFO: [Common 17-206] Exiting Vivado at Wed Nov 11 17:01:16 2026...

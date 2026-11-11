@@ -2,7 +2,7 @@
 // Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2024.2 (win64) Build 5239630 Fri Nov 08 22:35:27 MST 2024
-// Date        : Wed Nov  4 17:44:47 2026
+// Date        : Wed Nov 11 17:01:15 2026
 // Host        : sigamaliiin running 64-bit major release  (build 9200)
 // Command     : write_verilog -force -mode synth_stub
 //               c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0_stub.v

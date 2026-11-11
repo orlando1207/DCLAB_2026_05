@@ -4,11 +4,19 @@ onerror {quit -force}
 transcript on
 
 vlib work
+vlib activehdl/xpm
 vlib activehdl/xil_defaultlib
 
+vmap xpm activehdl/xpm
 vmap xil_defaultlib activehdl/xil_defaultlib
 
-vlog -work xil_defaultlib  -v2k5 -l xil_defaultlib \
+vlog -work xpm  -sv2k12 -l xpm -l xil_defaultlib \
+"D:/Xilinx/Vivado/2024.2/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv" \
+
+vcom -work xpm -93  \
+"D:/Xilinx/Vivado/2024.2/data/ip/xpm/xpm_VCOMP.vhd" \
+
+vlog -work xil_defaultlib  -v2k5 -l xpm -l xil_defaultlib \
 "../../../../NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/clocking/mig_7series_v4_2_clk_ibuf.v" \
 "../../../../NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/clocking/mig_7series_v4_2_infrastructure.v" \
 "../../../../NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/clocking/mig_7series_v4_2_iodelay_ctrl.v" \
@@ -75,7 +83,6 @@ vlog -work xil_defaultlib  -v2k5 -l xil_defaultlib \
 "../../../../NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/ui/mig_7series_v4_2_ui_wr_data.v" \
 "../../../../NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/mig_7series_0_mig_sim.v" \
 "../../../../NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/mig_7series_0.v" \
-
 
 vlog -work xil_defaultlib \
 "glbl.v"

@@ -1,7 +1,7 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 ---------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2024.2 (win64) Build 5239630 Fri Nov 08 22:35:27 MST 2024
-| Date         : Mon Nov  9 12:49:43 2026
+| Date         : Wed Nov 11 17:02:44 2026
 | Host         : sigamaliiin running 64-bit major release  (build 9200)
 | Command      : report_utilization -file NEXYS_A7_utilization_synth.rpt -pb NEXYS_A7_utilization_synth.pb
 | Design       : NEXYS_A7
@@ -31,13 +31,13 @@ Table of Contents
 +-------------------------+------+-------+------------+-----------+-------+
 |        Site Type        | Used | Fixed | Prohibited | Available | Util% |
 +-------------------------+------+-------+------------+-----------+-------+
-| Slice LUTs*             |  884 |     0 |          0 |     63400 |  1.39 |
-|   LUT as Logic          |  884 |     0 |          0 |     63400 |  1.39 |
+| Slice LUTs*             |  405 |     0 |          0 |     63400 |  0.64 |
+|   LUT as Logic          |  405 |     0 |          0 |     63400 |  0.64 |
 |   LUT as Memory         |    0 |     0 |          0 |     19000 |  0.00 |
-| Slice Registers         |  452 |     0 |          0 |    126800 |  0.36 |
-|   Register as Flip Flop |  452 |     0 |          0 |    126800 |  0.36 |
+| Slice Registers         |  338 |     0 |          0 |    126800 |  0.27 |
+|   Register as Flip Flop |  338 |     0 |          0 |    126800 |  0.27 |
 |   Register as Latch     |    0 |     0 |          0 |    126800 |  0.00 |
-| F7 Muxes                |    1 |     0 |          0 |     31700 | <0.01 |
+| F7 Muxes                |    0 |     0 |          0 |     31700 |  0.00 |
 | F8 Muxes                |    0 |     0 |          0 |     15850 |  0.00 |
 +-------------------------+------+-------+------------+-----------+-------+
 * Warning! The Final LUT count, after physical optimizations and full implementation, is typically lower. Run opt_design after synthesis, if not already completed, for a more realistic count.
@@ -58,9 +58,9 @@ Warning! For any ECO changes, please run place_design if there are unplaced inst
 | 0     |            _ |       Reset |            - |
 | 0     |          Yes |           - |            - |
 | 0     |          Yes |           - |          Set |
-| 315   |          Yes |           - |        Reset |
+| 265   |          Yes |           - |        Reset |
 | 2     |          Yes |         Set |            - |
-| 135   |          Yes |       Reset |            - |
+| 71    |          Yes |       Reset |            - |
 +-------+--------------+-------------+--------------+
 
 
@@ -149,20 +149,19 @@ Warning! For any ECO changes, please run place_design if there are unplaced inst
 +----------+------+---------------------+
 | Ref Name | Used | Functional Category |
 +----------+------+---------------------+
-| LUT6     |  390 |                 LUT |
-| LUT5     |  377 |                 LUT |
-| FDCE     |  315 |        Flop & Latch |
-| FDRE     |  135 |        Flop & Latch |
-| LUT2     |  107 |                 LUT |
-| LUT4     |   77 |                 LUT |
-| LUT3     |   65 |                 LUT |
-| OBUFT    |   53 |                  IO |
-| OBUF     |   16 |                  IO |
-| CARRY4   |   15 |          CarryLogic |
+| FDCE     |  265 |        Flop & Latch |
+| LUT2     |  136 |                 LUT |
+| LUT6     |  127 |                 LUT |
+| LUT5     |  120 |                 LUT |
+| LUT4     |  112 |                 LUT |
+| FDRE     |   71 |        Flop & Latch |
+| OBUFT    |   51 |                  IO |
+| LUT3     |   48 |                 LUT |
+| OBUF     |   18 |                  IO |
+| CARRY4   |   13 |          CarryLogic |
 | IBUF     |    6 |                  IO |
-| LUT1     |    3 |                 LUT |
+| LUT1     |    4 |                 LUT |
 | FDSE     |    2 |        Flop & Latch |
-| MUXF7    |    1 |               MuxFx |
 +----------+------+---------------------+
 
 

@@ -3,8 +3,8 @@
 # SW Build 5239630 on Fri Nov 08 22:35:27 MST 2024
 # IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
 # SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
-# Start of session at: Mon Nov  9 12:48:10 2026
-# Process ID         : 12916
+# Start of session at: Wed Nov 11 17:01:19 2026
+# Process ID         : 13996
 # Current directory  : C:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.runs/synth_1
 # Command line       : vivado.exe -log NEXYS_A7.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source NEXYS_A7.tcl
 # Log file           : C:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.runs/synth_1/NEXYS_A7.vds
@@ -19,6 +19,6 @@
 # Host memory        : 34006 MB
 # Swap memory        : 15569 MB
 # Total Virtual      : 49576 MB
-# Available Virtual  : 22088 MB
+# Available Virtual  : 20995 MB
 #-----------------------------------------------------------
 source NEXYS_A7.tcl -notrace
