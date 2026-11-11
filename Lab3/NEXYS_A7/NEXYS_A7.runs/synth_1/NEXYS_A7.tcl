@@ -86,14 +86,14 @@ read_verilog -library xil_defaultlib -sv {
   C:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/ddr2_interface.sv
   C:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7.sv
 }
+read_ip -quiet C:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.srcs/sources_1/ip/mig_7series_0/mig_7series_0.xci
+set_property used_in_implementation false [get_files -all c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/constraints/mig_7series_0.xdc]
+set_property used_in_implementation false [get_files -all c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/constraints/mig_7series_0_ooc.xdc]
+
 read_ip -quiet C:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.srcs/sources_1/ip/clk_wiz_0/clk_wiz_0.xci
 set_property used_in_implementation false [get_files -all c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc]
 set_property used_in_implementation false [get_files -all c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc]
 set_property used_in_implementation false [get_files -all c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_ooc.xdc]
-
-read_ip -quiet C:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.srcs/sources_1/ip/mig_7series_0/mig_7series_0.xci
-set_property used_in_implementation false [get_files -all c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/constraints/mig_7series_0.xdc]
-set_property used_in_implementation false [get_files -all c:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/constraints/mig_7series_0_ooc.xdc]
 
 OPTRACE "Adding files" END { }
 # Mark all dcp files as not used in implementation to prevent them from being
@@ -107,6 +107,8 @@ foreach dcp [get_files -quiet -all -filter file_type=="Design\ Checkpoint"] {
 read_xdc C:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/Nexys-A7-100T-Master.xdc
 set_property used_in_implementation false [get_files C:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/Nexys-A7-100T-Master.xdc]
 
+read_xdc dont_touch.xdc
+set_property used_in_implementation false [get_files dont_touch.xdc]
 set_param ips.enableIPCacheLiteLoad 1
 
 read_checkpoint -auto_incremental -incremental C:/Users/lovet/Desktop/DCLAB/DCLAB_2026_05/Lab3/NEXYS_A7/NEXYS_A7.srcs/utils_1/imports/synth_1/NEXYS_A7.dcp

@@ -2268,24 +2268,14 @@ endgenerate
   // Temperature induced PI tap adjustment logic
   //***************************************************************************
 
-  mig_7series_v4_2_ddr_phy_tempmon #
-    (
-     .SKIP_CALIB  (SKIP_CALIB),
-     .TCQ         (TCQ)
-     )
-    ddr_phy_tempmon_0
-      (
-       .rst                   (rst),
-       .clk                   (clk),
-       .calib_complete        (calib_complete),
-       .tempmon_pi_f_inc      (tempmon_pi_f_inc),
-       .tempmon_pi_f_dec      (tempmon_pi_f_dec),
-       .tempmon_sel_pi_incdec (tempmon_sel_pi_incdec),
-       .device_temp           (device_temp),
-       .calib_device_temp     (calib_device_temp),
-       .tempmon_sample_en     (tempmon_sample_en | skip_cal_tempmon_samp_en),
-       .tempmon_done_skip     (tempmon_done_skip)
-       );
+  // Lab3 slice reduction: ddr_phy_tempmon_0 removed by hand, outputs tied inactive.
+  // Power-up calibration is unchanged; only the run-time temperature tap adjustment is gone.
+  // tempmon_done_skip is used only when SKIP_CALIB == "TRUE" (this design uses "FALSE").
+  // Regenerating the MIG IP overwrites this file and restores the original instance.
+  assign tempmon_pi_f_inc      = 1'b0;
+  assign tempmon_pi_f_dec      = 1'b0;
+  assign tempmon_sel_pi_incdec = 1'b0;
+  assign tempmon_done_skip     = 1'b0;
 
 endmodule
 
